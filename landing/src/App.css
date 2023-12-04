@@ -1,0 +1,48 @@
+.text-shadow-home {
+  text-shadow: 2px 2px #000000;
+}
+
+.landing-page-main {
+  @apply flex flex-col items-center w-full;
+}
+
+.hero-section {
+  background: linear-gradient(to bottom, #212e36, #627aa3);
+}
+
+.cta-button {
+  @apply text-white bg-[#3dabf0] hover:opacity-90 transition font-bold py-2 lg:py-2.5 px-3 lg:px-4 rounded;
+}
+
+.protocol-stat-box {
+  @apply flex flex-col items-center text-center w-full lg:w-max lg:text-start lg:items-start py-4 px-6 rounded-lg border-2 border-white/70 bg-gray-800/60 text-2xl lg:text-xl;
+  box-shadow: 0 8px 16px 1px rgba(255, 255, 255, 0.5);
+}
+
+.protocol-stat-value {
+  @apply text-3xl;
+}
+
+.about-section {
+  @apply w-full flex flex-col items-center gap-16 py-48 px-4 lg:px-0;
+  background: linear-gradient(to bottom, #627aa3, #212e36);
+}
+
+.about-box {
+  @apply w-11/12 2xl:w-9/12 flex flex-col lg:flex-row text-center lg:text-start p-6 lg:p-12 rounded-lg bg-gray-800/60 text-xl;
+}
+
+.roadmap-section {
+  @apply w-full flex flex-col items-center;
+  background: linear-gradient(to bottom, #212e36, #627aa3);
+}
+
+.roadmap-card {
+  @apply bg-gray-900/60 p-4 lg:p-6 rounded-xl border-2 border-white/70 w-3/4 lg:w-1/4;
+  box-shadow: 0 6px 12px 1px rgba(255, 255, 255, 0.25);
+}
+
+.team-section {
+  @apply w-full flex flex-col items-center pb-32;
+  background: linear-gradient(to bottom, #627aa3, #212e36);
+}

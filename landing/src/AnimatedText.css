@@ -1,0 +1,18 @@
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+}
+
+.animated-text {
+  -webkit-animation: fadeInOut 3s linear infinite;
+  -moz-animation: fadeInOut 3s linear infinite;
+  -ms-animation: fadeInOut 3s linear infinite;
+  -o-animation: fadeInOut 3s linear infinite;
+  animation: fadeInOut 3s linear infinite;
+}

@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: Rubik;
+  src: url("./assets/Rubik-Regular.ttf") format("truetype");
+}
+
+:root {
+  font: 18px/1.5 Rubik;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply text-white;
+}
+
+h1 {
+  @apply text-3xl md:text-4xl 2xl:text-5xl;
+}

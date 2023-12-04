@@ -1,0 +1,136 @@
+/* GENERAL APP STYLES */
+/* In addition to the styles present here, there might be more inline styles in the components */
+
+@font-face {
+  font-family: Rubik;
+  src: url("./assets/Rubik-Regular.ttf") format("truetype");
+}
+
+:root {
+  font: 18px/1.5 Rubik;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  text-align: center;
+  /* background: linear-gradient(to bottom, #3dabf0, #1e5475); */
+  background: radial-gradient(circle at 50% 50%, #3dabf0, #1e5475);
+  color: white;
+  overflow-x: hidden;
+}
+
+@keyframes whiteShineAnimation {
+  0% {
+    text-shadow: 1px 1px #454443;
+  }
+  100% {
+    text-shadow: 0 0 2px #ffffff, 0 0 4px #ffffff, 0 0 6px #ffffff;
+  }
+}
+
+.text-shine {
+  animation: whiteShineAnimation 2.5s alternate ease-in-out;
+}
+
+.text-shadow {
+  text-shadow: 1px 1px 1px #222;
+}
+
+.card-body {
+  @apply p-4 rounded h-full w-full;
+  border: 1px solid #808080;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 2px rgba(255, 255, 255, 0.1);
+  color: #f5eeee;
+  background-image: url("./assets/marble1.png"),
+    linear-gradient(to bottom right, #8d8d92, #707070);
+  background-size: cover;
+  background-blend-mode: lighten;
+}
+
+.card-body:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4),
+    inset 0 3px 3px rgba(255, 255, 255, 0.15);
+  border-color: #8d8d8d;
+}
+
+.card-title {
+  @apply text-shadow text-3xl font-bold mb-4;
+  color: #f5eeee;
+}
+
+.token-display {
+  @apply text-shadow text-2xl;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(
+    145deg,
+    rgba(141, 141, 145, 0.8),
+    rgba(128, 128, 128, 0.8)
+  );
+}
+
+.token-info,
+.staked-info,
+.winner-info {
+  @apply text-shadow text-lg;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(
+    145deg,
+    rgba(141, 141, 145, 0.8),
+    rgba(128, 128, 128, 0.8)
+  );
+}
+
+.main-button {
+  @apply text-white bg-[#3dabf0] hover:opacity-80 transition-opacity duration-150 text-sm py-2 px-3 rounded;
+}
+
+.navbar-desktop {
+  @apply rounded flex min-h-[72px] w-full justify-between items-center;
+  background-image: linear-gradient(to top, #8d8d92, #808080);
+  border: 1px solid #6d6c6a;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-link-item {
+  @apply flex transition-all;
+  text-shadow: 0px 0px 4px #222;
+}
+
+.navbar-link-item:hover {
+  text-shadow: 0 0 4px #888, 0 0 6px #888, 0 0 8px #888;
+}
+
+.nav-settings-menu {
+  @apply flex flex-col items-center top-10 right-1 absolute w-40 bg-[#8d8d92] rounded;
+  border: 1px solid #808080;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35),
+    inset 0 2px 2px rgba(255, 255, 255, 0.05);
+  color: #e7e2e2;
+  overflow: hidden;
+  transform: scaleY(0); /* Initially hidden */
+  transform-origin: top right;
+  transition: all 0.125s ease-in-out;
+}
+
+.nav-settings-menu-active {
+  transform: scaleY(1);
+}
+
+.nav-settings-menu-item {
+  @apply w-full py-2 text-sm hover:bg-[rgba(0,0,0,0.2)] transition-all duration-150;
+}
