@@ -331,7 +331,7 @@ const App = () => {
             </li>
           </ul>
         </div>
-        <p className="mb-2 w-full text-3xl text-shadow-home text-center">
+        <p className="mb-2 w-full text-4xl text-shadow-home text-center">
           $ATLAS Distribution
         </p>
         <div className="w-64 h-64 lg:w-96 lg:h-96">
@@ -415,7 +415,7 @@ const App = () => {
               <div className="font-bold text-xl">Rad</div>
               <p className="text-gray-200 mb-1">Marketing Femboy</p>
               <a
-                href="https://twitter.com/radiate999"
+                href="https://twitter.com/radiate9999"
                 rel="noreferrer noopener"
                 target="_blank"
                 className="text-blue-500 hover:text-blue-700 flex justify-center"
@@ -463,7 +463,7 @@ const App = () => {
       </section>
       <footer className="w-full bg-black flex items-center justify-center">
         <p className="py-4 text-gray-200">
-          AtlasPairs © 2023. All rights reserved.
+          AtlasPairs © 2024. All rights reserved.
         </p>
       </footer>
     </main>
