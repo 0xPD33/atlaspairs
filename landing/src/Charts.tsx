@@ -19,7 +19,7 @@ const Chart = () => {
     datasets: [
       {
         label: "$ATLAS Distribution",
-        data: [12.2, 10, 13.8, 15, 5, 5, 5, 15, 10, 10],
+        data: [11.2, 10, 13.8, 15, 5, 5, 5, 15, 10, 10],
         backgroundColor: [
           "rgba(255, 30, 0, 0.5)",
           "rgba(255, 99, 132, 0.5)",
