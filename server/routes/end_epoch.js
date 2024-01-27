@@ -64,6 +64,9 @@ router.post("/", async (req, res) => {
     res.status(500).json(error);
     release();
     return;
+  } finally {
+    console.log("Releasing semaphore...");
+    release();
   }
 
   if (!epochEnded) {
@@ -91,8 +94,10 @@ router.post("/", async (req, res) => {
     } catch (error) {
       console.log(error);
       res.status(500).json(error);
-      release();
       return;
+    } finally {
+      console.log("Releasing semaphore...");
+      release();
     }
   } else {
     console.log("Epoch already ended.");
@@ -112,11 +117,12 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
-    release();
     return;
+  } finally {
+    console.log("Releasing semaphore...");
+    release();
   }
 
-  release();
   res.status(200).json({ msg: "success" });
 });
 
@@ -134,9 +140,6 @@ const getTokenBySymbol = async (symbol) => {
         },
       }
     );
-
-    // console.log("response")
-    // console.log(response)
 
     const token = response.data.data[symbol];
     return {
@@ -187,7 +190,6 @@ const getRandom32Int = () => {
   for (let i = 0; i < 32; i++) temp += Math.round(Math.random());
 
   const randomNum = BigInt(temp);
-  // console.log(randomNum.toString());
   return randomNum.toString();
 };
 

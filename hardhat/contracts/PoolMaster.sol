@@ -2,11 +2,11 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "hardhat/console.sol";
 
 contract PoolMaster is Ownable {
     using SafeERC20 for IERC20;
@@ -70,7 +70,7 @@ contract PoolMaster is Ownable {
         uint256 _poolId,
         uint256 _amount,
         bool _isUsdc
-    ) public payable {
+    ) public payable nonReentrant {
         require(!epochEnded, "Epoch not started yet");
         require(getPhase() == 0, "Betting phase has ended.");
 
@@ -143,7 +143,7 @@ contract PoolMaster is Ownable {
     }
 
     // Der Pool, dessen token den anderen in absoluten % outperformt hat, gewinnt
-    function endEpoch(uint256 _poolWinnerId) public onlyOwner {
+    function endEpoch(uint256 _poolWinnerId) public onlyOwner nonReentrant {
         require(!epochEnded, "Current epoch already ended");
         require(getPhase() == 2, "Epoch not ready to be ended yet.");
         epochEnded = true;
@@ -490,18 +490,18 @@ contract PoolMaster is Ownable {
 
     // OWNER FUNCTIONS
 
-    function withdrawEth() external onlyOwner {
+    function withdrawEth() external onlyOwner nonReentrant {
         (bool success, ) = payable(msg.sender).call{
             value: address(this).balance
         }("");
         require(success, "Transfer failed");
     }
 
-    function withdrawToken() external onlyOwner {
-        token.transfer(msg.sender, usdc.balanceOf(address(this)));
+    function withdrawToken() external onlyOwner nonReentrant {
+        token.transfer(msg.sender, token.balanceOf(address(this)));
     }
 
-    function withdrawUsdc() external onlyOwner {
+    function withdrawUsdc() external onlyOwner nonReentrant {
         usdc.transfer(msg.sender, usdc.balanceOf(address(this)));
     }
 }
