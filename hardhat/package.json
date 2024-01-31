@@ -5,6 +5,7 @@
     "hardhat": "^2.19.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^4.9.5",
+    "dotenv": "^16.4.1"
   }
 }

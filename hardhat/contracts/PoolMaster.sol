@@ -2,19 +2,22 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract PoolMaster is Ownable {
+contract PoolMaster is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     IERC20 public token;
     IERC20 public usdc;
 
-    uint256 public bettingPhaseDuration = 8 * 60 * 60; // 8 Hours
-    uint256 public battlingPhaseDuration = 24 * 60 * 60; // 24 Hours
+    // uint256 public bettingPhaseDuration = 8 * 60 * 60; // 8 Hours
+    // uint256 public battlingPhaseDuration = 24 * 60 * 60; // 24 Hours
+
+    uint256 public bettingPhaseDuration = 5 * 60; // 5 minutes
+    uint256 public battlingPhaseDuration = 15 * 60; // 15 minutes
 
     uint256 public loserTokensPercent = 1250; // 12.50 %
     uint256 public winnerTokensPercent = 8000; // 10.00 % : 10/12.5 = 80%
@@ -94,8 +97,8 @@ contract PoolMaster is Ownable {
         Staker memory _staker = Staker(
             _poolId,
             _stakeAmount,
-            _isUsdc,
-            msg.sender
+            msg.sender,
+            _isUsdc
         );
 
         stakersMapping[msg.sender] = _staker;
@@ -183,8 +186,8 @@ contract PoolMaster is Ownable {
             stakersMapping[_staker.stakerAddress] = Staker(
                 0,
                 0,
-                false,
-                address(0)
+                address(0),
+                false
             );
             unchecked {
                 ++i;
@@ -222,9 +225,9 @@ contract PoolMaster is Ownable {
                 winAddresses.push(
                     WinnerAddress(
                         _usdcUserWinAmount,
-                        _staker.isUsdc,
+                        block.timestamp,
                         _staker.stakerAddress,
-                        block.timestamp
+                        _staker.isUsdc
                     )
                 );
             } else {
@@ -235,9 +238,9 @@ contract PoolMaster is Ownable {
                 winAddresses.push(
                     WinnerAddress(
                         _tokenUserWinAmount,
-                        _staker.isUsdc,
+                        block.timestamp,
                         _staker.stakerAddress,
-                        block.timestamp
+                        _staker.isUsdc
                     )
                 );
             }
@@ -245,8 +248,8 @@ contract PoolMaster is Ownable {
             stakersMapping[_staker.stakerAddress] = Staker(
                 0,
                 0,
-                false,
-                address(0)
+                address(0),
+                false
             );
             unchecked {
                 ++i;
@@ -301,8 +304,8 @@ contract PoolMaster is Ownable {
             stakersMapping[_staker.stakerAddress] = Staker(
                 0,
                 0,
-                false,
-                address(0)
+                address(0),
+                false
             );
             unchecked {
                 ++i;

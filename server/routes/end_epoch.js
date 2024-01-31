@@ -1,21 +1,21 @@
-import { ethers } from "ethers";
-import { Router } from "express";
-import { get } from "axios";
-import { config } from "dotenv";
-import { readFileSync } from "fs";
-import { Mutex } from "async-mutex";
+const { ethers } = require("ethers");
+const express = require("express");
+const axios = require("axios");
+const dotenv = require("dotenv");
+const fs = require("fs");
+const { Mutex } = require("async-mutex");
 
-const router = Router();
+const router = express.Router();
 
 const PoolMasterAbi = JSON.parse(
-  readFileSync("./contractsData/PoolMaster.json")
+  fs.readFileSync("./contractsData/PoolMaster.json")
 );
 const PoolMasterAddress = JSON.parse(
-  readFileSync("./contractsData/PoolMaster-address.json")
+  fs.readFileSync("./contractsData/PoolMaster-address.json")
 );
-const tokenList = JSON.parse(readFileSync("./tokens.json"));
+const tokenList = JSON.parse(fs.readFileSync("./tokens.json"));
 
-config();
+dotenv.config();
 
 // The release function will be used to signal when a request can be removed from the semaphore
 let release;
@@ -30,10 +30,11 @@ router.post("/", async (req, res) => {
 
   console.log("Ending epoch requested...");
 
-  const provider = new ethers.providers.JsonRpcProvider(
-    process.env.URL_ARBITRUM_INFURA
-  );
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_MAINNET, provider);
+  const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
+    name: "goerli",
+    chainId: 5,
+  });
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   console.log("wallet address", wallet.address);
 
   const poolMaster = new ethers.Contract(
@@ -64,9 +65,6 @@ router.post("/", async (req, res) => {
     res.status(500).json(error);
     release();
     return;
-  } finally {
-    console.log("Releasing semaphore...");
-    release();
   }
 
   if (!epochEnded) {
@@ -94,10 +92,8 @@ router.post("/", async (req, res) => {
     } catch (error) {
       console.log(error);
       res.status(500).json(error);
-      return;
-    } finally {
-      console.log("Releasing semaphore...");
       release();
+      return;
     }
   } else {
     console.log("Epoch already ended.");
@@ -117,12 +113,11 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
-    return;
-  } finally {
-    console.log("Releasing semaphore...");
     release();
+    return;
   }
 
+  release();
   res.status(200).json({ msg: "success" });
 });
 
@@ -193,4 +188,4 @@ const getRandom32Int = () => {
   return randomNum.toString();
 };
 
-export default router;
+module.exports = router;

@@ -17,20 +17,21 @@ import MouseFollower from "./MouseFollower";
 
 import Axios from "axios";
 
-import UsdcAbi from "../data/usdc.json";
-import UsdcAddress from "../data/usdc-address.json";
-import TokenAbi from "../data/Token.json";
-import TokenAddress from "../data/Token-address.json";
+import UsdcAbi from "../data/Erc20Usdc.json";
+import UsdcAddress from "../data/Erc20Usdc-address.json";
+import TokenAbi from "../data/AtlasToken.json";
+import TokenAddress from "../data/AtlasToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
 const API_ENDPOINT =
-  import.meta.env.REACT_APP_IS_PRODUCTION_ENVIRONMENT === "true"
+  import.meta.env.PROD === "true"
     ? "/api/end_epoch"
-    : "http://localhost:4000/api/end_epoch";
-const RPC_URL =
-  import.meta.env.ARBITRUM_MAINNET_RPC_URL || "https://arb1.arbitrum.io/rpc";
-const NETWORK = "arbitrum"; // move this to an environment variable
+    : "http://localhost:3333/api/end_epoch";
+
+const RPC_URL = import.meta.env.VITE_RPC_URL;
+const NETWORK = import.meta.env.VITE_NETWORK;
+const CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
 const fromWei = (num) => Math.floor(ethers.utils.formatEther(num));
 const toWei = (num) => ethers.utils.parseEther(num.toString());
@@ -83,9 +84,9 @@ function App() {
 
     let dateNow = Date.now() + testOffset;
     setTimeleft(timeleftTemp);
-    console.log("timeleftTemp: " + timeleftTemp);
-    console.log("Date.now(): " + dateNow);
-    console.log("Set interval");
+    // console.log("timeleftTemp: " + timeleftTemp);
+    // console.log("Date.now(): " + dateNow);
+    // console.log("Set interval");
 
     if (intervalRef.current == null) {
       let intervalId = setInterval(() => {
@@ -141,7 +142,10 @@ function App() {
 
   const setupReadClient = async () => {
     const readProvider = new ethers.providers.JsonRpcProvider(RPC_URL);
-    const multicallProvider = new MulticallProvider(readProvider);
+    const multicallProvider = new MulticallProvider(
+      readProvider,
+      Number(CHAIN_ID)
+    );
     await multicallProvider.init();
 
     const poolMasterMulticall = new MulticallContract(
@@ -261,7 +265,6 @@ function App() {
   };
 
   const requestEndEpoch = async () => {
-    console.log("requestEndEpoch");
     Axios.post(API_ENDPOINT).then((response) => {
       // production environment
       const serverResult = response.data;

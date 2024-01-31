@@ -46,7 +46,6 @@ const Dapp = ({
   };
 
   const stake = async () => {
-    console.log("stake", chosenPool, chosenAmount, chosenUsdc);
     let amount = toWei(chosenAmount);
     let isUsdc = chosenUsdc;
 
@@ -105,55 +104,55 @@ const Dapp = ({
       )}
       {showPlaceBetPopup && (
         <>
-          <div
-            className="fixed inset-0 bg-black z-40"
-            onClick={() => setShowPlaceBetPopup(false)}
-          ></div>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white p-4 rounded-lg shadow-lg">
-              <h1 className="text-2xl font-bold mb-4">Place a Bet</h1>
-              {chosenPool !== 2 && (
-                <div className="flex justify-center items-center my-2">
-                  <label htmlFor="custom-switch" className="mr-2">
-                    {chosenUsdc ? "USDC" : "$ATLAS"}
-                  </label>
+          <div className="fixed inset-0 bg-black/30 z-50">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="bg-[#8a8a8e] text-black p-6 rounded-lg shadow-lg">
+                <h1 className="text-2xl font-bold mb-4">
+                  Place a Bet in Vault {chosenPool + 1}
+                </h1>
+                {chosenPool !== 2 && (
+                  <div className="flex justify-center items-center my-2">
+                    <label htmlFor="custom-switch" className="mr-2">
+                      {chosenUsdc ? "USDC" : "$ATLAS"}
+                    </label>
+                    <input
+                      type="checkbox"
+                      id="custom-switch"
+                      className="toggle toggle-primary"
+                      checked={!chosenUsdc}
+                      onChange={toggleTokenSwitch}
+                    />
+                  </div>
+                )}
+                <div className="my-4">
+                  <label className="block mb-2">Amount:</label>
                   <input
-                    type="checkbox"
-                    id="custom-switch"
-                    className="toggle toggle-primary"
-                    checked={!chosenUsdc}
-                    onChange={toggleTokenSwitch}
+                    type="number"
+                    className="w-full p-1 rounded-md text-white"
+                    value={chosenAmount}
+                    onChange={onChangeChosenAmount}
+                  />
+                  <input
+                    type="range"
+                    className="mt-4"
+                    min={5}
+                    max={500}
+                    step={1}
+                    value={chosenAmount}
+                    onChange={onChangeChosenAmount}
                   />
                 </div>
-              )}
-              <div className="my-3">
-                <label className="block mb-2">Amount:</label>
-                <input
-                  type="number"
-                  className="input input-bordered w-full max-w-xs"
-                  value={chosenAmount}
-                  onChange={onChangeChosenAmount}
-                />
-                <input
-                  type="range"
-                  className="range range-primary mt-3"
-                  min={5}
-                  max={500}
-                  step={1}
-                  value={chosenAmount}
-                  onChange={onChangeChosenAmount}
-                />
-              </div>
-              <div className="flex justify-center space-x-4 my-5">
-                <button
-                  className="btn btn-warning"
-                  onClick={() => setShowPlaceBetPopup(false)}
-                >
-                  Cancel
-                </button>
-                <button className="btn btn-success" onClick={stake}>
-                  Place Bet
-                </button>
+                <div className="flex justify-center space-x-4 my-5">
+                  <button
+                    className="main-button"
+                    onClick={() => setShowPlaceBetPopup(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button className="" onClick={stake}>
+                    Place Bet
+                  </button>
+                </div>
               </div>
             </div>
           </div>

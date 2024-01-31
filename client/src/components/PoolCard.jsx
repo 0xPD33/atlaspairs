@@ -48,7 +48,7 @@ const PoolCard = ({
                 className="main-button text-lg px-4"
                 onClick={() => clickBet(poolNumber - 1)}
               >
-                Bet
+                {poolNumber === 3 ? "Stake" : "Bet"}
               </button>
             )}
           </div>
