@@ -40,6 +40,7 @@ contract PoolMaster is Ownable, ReentrancyGuard {
 
     struct Pool {
         string symbol;
+        string price;
         string lastWinnerSymbol;
         uint256 tokenCount;
         uint256 usdcCount;
@@ -64,9 +65,9 @@ contract PoolMaster is Ownable, ReentrancyGuard {
     event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
 
     constructor() {
-        pools.push(Pool("", "", 0, 0, 0, 0));
-        pools.push(Pool("", "", 0, 0, 0, 0));
-        pools.push(Pool("", "", 0, 0, 0, 0));
+        pools.push(Pool("", "", "", 0, 0, 0, 0));
+        pools.push(Pool("", "", "", 0, 0, 0, 0));
+        pools.push(Pool("", "", "", 0, 0, 0, 0));
     }
 
     function stake(
@@ -118,13 +119,17 @@ contract PoolMaster is Ownable, ReentrancyGuard {
 
     function startEpoch(
         string calldata _symbol1,
-        string calldata _symbol2
+        string calldata _price1,
+        string calldata _symbol2,
+        string calldata _price2
     ) public onlyOwner {
         require(epochEnded, "Current epoch has not ended");
         epochEnded = false;
 
         pools[0].symbol = _symbol1;
+        pools[0].price = _price1;
         pools[1].symbol = _symbol2;
+        pools[1].price = _price2;
 
         pools[0].tokenCount = 0;
         pools[1].tokenCount = 0;

@@ -106,7 +106,7 @@ const Dapp = ({
         <>
           <div className="fixed inset-0 bg-black/30 z-50">
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="bg-[#8a8a8e] text-black p-6 rounded-lg shadow-lg">
+              <div className="bg-[#8a8a8e] text-white p-6 rounded-lg shadow-lg">
                 <h1 className="text-2xl font-bold mb-4">
                   Place a Bet in Vault {chosenPool + 1}
                 </h1>
@@ -128,7 +128,7 @@ const Dapp = ({
                   <label className="block mb-2">Amount:</label>
                   <input
                     type="number"
-                    className="w-full p-1 rounded-md text-white"
+                    className="w-full p-1 rounded-md text-black"
                     value={chosenAmount}
                     onChange={onChangeChosenAmount}
                   />
@@ -149,7 +149,7 @@ const Dapp = ({
                   >
                     Cancel
                   </button>
-                  <button className="" onClick={stake}>
+                  <button className="main-button" onClick={stake}>
                     Place Bet
                   </button>
                 </div>

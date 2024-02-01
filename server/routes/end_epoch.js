@@ -22,108 +22,133 @@ let release;
 
 // Create a Mutex and get a lock
 const semaphore = new Mutex();
+let isEpochOperationInProgress = false;
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); // Delay is probably only needed for testing on slow testnets
 
 router.post("/", async (req, res) => {
   // Use .acquire() to add a request to the semaphore. This will wait if there are already max allowed requests processing
   console.log("Acquiring semaphore...");
   release = await semaphore.acquire();
 
-  console.log("Ending epoch requested...");
-
-  const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
-    name: "goerli",
-    chainId: 5,
-  });
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-  console.log("wallet address", wallet.address);
-
-  const poolMaster = new ethers.Contract(
-    PoolMasterAddress.address,
-    PoolMasterAbi.abi,
-    wallet
-  );
-  console.log("poolMaster address", poolMaster.address);
-
-  console.log("Getting current phase...");
-  let phase = 0;
-  let epochEnded = false;
   try {
-    phase = parseInt(await poolMaster.getPhase());
+    if (isEpochOperationInProgress) {
+      console.log("Epoch operation already in progress");
+      res.status(429).json({ error: "Epoch operation already in progress" });
+      return;
+    }
+
+    isEpochOperationInProgress = true;
+    console.log("Starting epoch operation...");
+
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
+      name: "goerli",
+      chainId: 5,
+    });
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+    console.log("wallet address", wallet.address);
+
+    const poolMaster = new ethers.Contract(
+      PoolMasterAddress.address,
+      PoolMasterAbi.abi,
+      wallet
+    );
+    console.log("poolMaster address", poolMaster.address);
+
+    console.log("Getting current phase...");
+    await delay(10000); // Delay for 1 second, adjust as needed
+
+    const phase = parseInt(await poolMaster.getPhase());
     console.log("phase", phase);
 
-    if (phase != 2) {
-      console.log("The epoch is not ended yet");
-      res.status(500).json("The epoch is not ended yet");
-      release();
-      return;
-    }
-
-    epochEnded = await poolMaster.epochEnded();
+    await delay(10000); // Another delay
+    const epochEnded = await poolMaster.epochEnded();
     console.log("epochEnded", epochEnded);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
-    release();
-    return;
-  }
 
-  if (!epochEnded) {
-    console.log("Finding out winner...");
-    let winnerId = 0;
-    let token1Symbol = await poolMaster.getSymbol(0);
-    let token2Symbol = await poolMaster.getSymbol(1);
-    console.log("token1Symbol", token1Symbol);
-    console.log("token2Symbol", token2Symbol);
+    if (phase === 2 && !epochEnded) {
+      console.log("Finding out winner...");
+      const pool0 = await poolMaster.pools(0);
+      const pool1 = await poolMaster.pools(1);
 
-    let token1 = await getTokenBySymbol(token1Symbol);
-    let token2 = await getTokenBySymbol(token2Symbol);
-    console.log("token1.price:", token1.price);
-    console.log("token2.price:", token2.price);
+      const fetchedToken1 = await getTokenBySymbol(pool0.symbol);
+      const fetchedToken2 = await getTokenBySymbol(pool1.symbol);
 
-    if (token1.price < token2.price) winnerId = 1;
-    console.log("winnerId", winnerId);
+      const initialPrice1 = parseFloat(pool0.price);
+      const initialPrice2 = parseFloat(pool1.price);
+      console.log("initial prices: ", initialPrice1, initialPrice2);
 
-    console.log("Ending epoch...");
-    try {
-      let transaction = await poolMaster.endEpoch(winnerId);
-      let receipt = await provider.waitForTransaction(transaction.hash);
-      console.log("Transaction has been mined:");
-      console.log(receipt);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(error);
-      release();
-      return;
+      const fetchedPrice1 = parseFloat(fetchedToken1.price);
+      const fetchedPrice2 = parseFloat(fetchedToken2.price);
+      console.log("fetched prices: ", fetchedPrice1, fetchedPrice2);
+
+      const performance1 =
+        ((fetchedPrice1 - initialPrice1) / initialPrice1) * 100;
+      const performance2 =
+        ((fetchedPrice2 - initialPrice2) / initialPrice2) * 100;
+      console.log("performance1", performance1);
+      console.log("performance2", performance2);
+
+      const winnerId = performance1 > performance2 ? 0 : 1;
+
+      console.log("winnerId", winnerId);
+
+      console.log("Ending epoch...");
+      try {
+        let transaction = await poolMaster.endEpoch(winnerId);
+        let receipt = await provider.waitForTransaction(transaction.hash);
+        console.log("Transaction has been mined:");
+        console.log(receipt);
+      } catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+        release();
+        return;
+      }
+    } else if (epochEnded) {
+      console.log("Starting new epoch...");
+      let randomIndex1 = getRandom32Int() % tokenList.length;
+      let randomIndex2 = getRandom32Int() % tokenList.length;
+      let nextToken1Symbol = tokenList[randomIndex1].symbol;
+      let nextToken2Symbol = tokenList[randomIndex2].symbol;
+      let token1 = await getTokenBySymbol(nextToken1Symbol);
+      let token2 = await getTokenBySymbol(nextToken2Symbol);
+      console.log("nextToken1Symbol", nextToken1Symbol);
+      console.log("nextToken2Symbol", nextToken2Symbol);
+      console.log("token1.price:", token1.price);
+      console.log("token2.price:", token2.price);
+
+      try {
+        await poolMaster.startEpoch(
+          nextToken1Symbol,
+          token1.price,
+          nextToken2Symbol,
+          token2.price
+        );
+        console.log("start epoch success");
+      } catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+        release();
+        return;
+      }
+    } else {
+      console.log("No epoch action required");
+      res.status(200).json({ msg: "No epoch action required" });
     }
-  } else {
-    console.log("Epoch already ended.");
-  }
 
-  console.log("Starting new epoch...");
-  let randomIndex1 = getRandom32Int() % tokenList.length;
-  let randomIndex2 = getRandom32Int() % tokenList.length;
-  let nextToken1Symbol = tokenList[randomIndex1].symbol;
-  let nextToken2Symbol = tokenList[randomIndex2].symbol;
-  console.log("nextToken1Symbol", nextToken1Symbol);
-  console.log("nextToken2Symbol", nextToken2Symbol);
-
-  try {
-    await poolMaster.startEpoch(nextToken1Symbol, nextToken2Symbol);
-    console.log("start epoch success");
+    res.status(200).json({ msg: "Epoch operation completed" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.error("Error during epoch operation:", error);
+    res.status(500).json({ error: "Server error during epoch operation" });
+  } finally {
+    isEpochOperationInProgress = false;
     release();
-    return;
   }
-
-  release();
-  res.status(200).json({ msg: "success" });
 });
 
 const getTokenBySymbol = async (symbol) => {
   try {
-    const response = await get(
+    const response = await axios.get(
       `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest`,
       {
         params: {
@@ -151,7 +176,7 @@ const getTokenBySymbol = async (symbol) => {
 
 const getTop100Tokens = async () => {
   try {
-    const response = await get(
+    const response = await axios.get(
       "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
       {
         params: {
