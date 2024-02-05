@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 interface IERC20 {
     function transfer(address to, uint256 amount) external returns (bool);
-
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
     function balanceOf(address account) external view returns (uint256);
 }
 
-contract Presale is ReentrancyGuard {
+contract Presale {
     IERC20 public token;
     address public owner;
-    uint256 public publicSalePrice;
+    uint256 public publicSalePrice; // tokens per ETH
     uint256 public publicSaleCap;
     uint256 public publicSaleStartTime;
     uint256 public publicSaleTokenAllocation;
     bool public publicSaleActive;
+    bool public saleEnded;
     mapping(address => bool) public whitelisted;
     mapping(address => uint256) public tokensOwed;
 
@@ -38,12 +39,25 @@ contract Presale is ReentrancyGuard {
         publicSaleCap = _publicSaleCap;
     }
 
-    function togglePublicSale(
-        bool _state,
-        uint256 _startTime
+    function startPublicSale(
+        uint256 _startTime,
+        uint256 _amount
     ) external onlyOwner {
-        publicSaleActive = _state;
+        require(!publicSaleActive && !saleEnded, "Sale already initialized");
+
+        publicSaleActive = true;
         publicSaleStartTime = _startTime;
+        publicSaleTokenAllocation  = _amount;
+        require(
+            token.transferFrom(msg.sender, address(this), _amount),
+            "Token transfer failed"
+        );
+    }
+
+    function endPublicSale() external onlyOwner {
+        require(publicSaleActive, "Sale not initialized");
+        publicSaleActive = false;
+        saleEnded = true;
     }
 
     function addToWhitelist(address[] calldata addresses) external onlyOwner {
@@ -68,11 +82,11 @@ contract Presale is ReentrancyGuard {
         return false;
     }
 
-    function buyTokens() external payable nonReentrant {
+    function buyTokens() external payable {
         require(isSaleOpenFor(msg.sender), "Sale not open for you yet");
         require(msg.value <= publicSaleCap, "Exceeds public sale cap");
 
-        uint256 tokensToReceive = msg.value / publicSalePrice;
+        uint256 tokensToReceive = msg.value * publicSalePrice;
         require(
             publicSaleTokenAllocation >= tokensToReceive,
             "Not enough tokens left in allocation"
@@ -82,18 +96,27 @@ contract Presale is ReentrancyGuard {
         publicSaleTokenAllocation -= tokensToReceive;
     }
 
-    function claimTokens() external nonReentrant {
+    function claimTokens() external {
+        require(saleEnded, "Sale has not ended");
         uint256 amountOwed = tokensOwed[msg.sender];
         require(amountOwed > 0, "No tokens to claim");
+        tokensOwed[msg.sender] = 0;
         require(
             token.transfer(msg.sender, amountOwed),
             "Token transfer failed"
         );
-        tokensOwed[msg.sender] = 0;
+        
     }
 
-    function withdraw() external onlyOwner nonReentrant {
+    function withdraw() external onlyOwner {
         (bool sent, ) = payable(owner).call{value: address(this).balance}("");
         require(sent, "Failed to send Ether");
+    }
+
+    function tokenWithdraw() external onlyOwner {
+        require(
+            token.transfer(owner, token.balanceOf(address(this))),
+            "Token transfer failed"
+        );
     }
 }
