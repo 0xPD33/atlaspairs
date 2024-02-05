@@ -19,8 +19,8 @@ import Axios from "axios";
 
 import UsdcAbi from "../data/Erc20Usdc.json";
 import UsdcAddress from "../data/Erc20Usdc-address.json";
-import TokenAbi from "../data/AtlasToken.json";
-import TokenAddress from "../data/AtlasToken-address.json";
+import TokenAbi from "../data/TestToken.json";
+import TokenAddress from "../data/TestToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
@@ -70,8 +70,6 @@ function App() {
   const poolMasterRef = useRef();
   poolMasterRef.current = contracts.poolMaster;
 
-  const zeroPad = (num, places) => String(num).padStart(places, "0");
-
   const initTimer = useCallback((startTimestamp, duration) => {
     if (startTimestamp == 0) {
       setTimeleft(0);
@@ -84,9 +82,6 @@ function App() {
 
     let dateNow = Date.now() + testOffset;
     setTimeleft(timeleftTemp);
-    // console.log("timeleftTemp: " + timeleftTemp);
-    // console.log("Date.now(): " + dateNow);
-    // console.log("Set interval");
 
     if (intervalRef.current == null) {
       let intervalId = setInterval(() => {
@@ -108,13 +103,11 @@ function App() {
   }, []);
 
   const setupBrowserClient = useCallback(async () => {
-    // Assuming only the first account is used
     const [account] = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
     setAccount(account);
 
-    // Write provider using ethers
     const writeProvider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = writeProvider.getSigner();
 
@@ -207,9 +200,10 @@ function App() {
       }
 
       await loadPoolData();
-      if (phase === 2) {
-        await requestEndEpoch();
-      }
+
+      // if (phase === 2) {
+      //   await requestEndEpoch();
+      // }
     } catch (error) {
       console.error("Error fetching contract data:", error);
     }
@@ -264,15 +258,16 @@ function App() {
     setPools(poolsTemp);
   };
 
-  const requestEndEpoch = async () => {
-    Axios.post(API_ENDPOINT).then((response) => {
-      // production environment
-      const serverResult = response.data;
-      console.log(serverResult);
+  // not needed anymore, as the bot now starts/ends each epoch
+  // const requestEndEpoch = async () => {
+  //   Axios.post(API_ENDPOINT).then((response) => {
+  //     // production environment
+  //     const serverResult = response.data;
+  //     console.log(serverResult);
 
-      if (serverResult.msg == "success") loadContractsData();
-    });
-  };
+  //     if (serverResult.msg == "success") loadContractsData();
+  //   });
+  // };
 
   useEffect(() => {
     async function initializeWeb3() {
@@ -337,7 +332,7 @@ function App() {
                     pools={pools}
                     stakedAmountForAddress={stakedAmountForAddress}
                     poolIdForAddress={poolIdForAddress}
-                    requestEndEpoch={requestEndEpoch}
+                    // requestEndEpoch={requestEndEpoch}
                   />
                 </>
               }

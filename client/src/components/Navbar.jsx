@@ -64,7 +64,7 @@ const Navbar = ({
           </div>
         </div>
         <div className="relative flex-1 flex items-center justify-center">
-          <a href="dapp">
+          <a href="vaults">
             <img
               src={logo}
               className="absolute translate-y-[-50%] translate-x-[-50%] -top-4 w-96"

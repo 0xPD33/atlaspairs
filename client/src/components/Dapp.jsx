@@ -17,7 +17,7 @@ const Dapp = ({
   pools,
   stakedAmountForAddress,
   poolIdForAddress,
-  requestEndEpoch,
+  // requestEndEpoch,
 }) => {
   const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false);
   const [chosenPool, setChosenPool] = useState(0);
@@ -128,7 +128,7 @@ const Dapp = ({
                   <label className="block mb-2">Amount:</label>
                   <input
                     type="number"
-                    className="w-full p-1 rounded-md text-black"
+                    className="w-full p-1 rounded-md text-white"
                     value={chosenAmount}
                     onChange={onChangeChosenAmount}
                   />

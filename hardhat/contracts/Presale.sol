@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IERC20 {
     function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
@@ -47,7 +53,7 @@ contract Presale {
 
         publicSaleActive = true;
         publicSaleStartTime = _startTime;
-        publicSaleTokenAllocation  = _amount;
+        publicSaleTokenAllocation = _amount;
         require(
             token.transferFrom(msg.sender, address(this), _amount),
             "Token transfer failed"
@@ -105,7 +111,6 @@ contract Presale {
             token.transfer(msg.sender, amountOwed),
             "Token transfer failed"
         );
-        
     }
 
     function withdraw() external onlyOwner {

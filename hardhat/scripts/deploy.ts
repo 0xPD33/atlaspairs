@@ -18,29 +18,24 @@ async function main() {
 
   const PoolMaster = await ethers.getContractFactory("PoolMaster");
   // const Erc20Usdc = await ethers.getContractFactory("Erc20Usdc");
-  const Token = await ethers.getContractFactory("AtlasToken");
-
-  // usdc = await Erc20Usdc.deploy();
-  // console.log("Erc20Usdc contract address", usdc.address)
-  // saveFrontendFiles(usdc, "Erc20Usdc");
+  const Token = await ethers.getContractFactory("TestToken");
 
   token = await Token.deploy();
-  console.log("Token contract address", await token.getAddress());
-  saveFrontendFiles(await token.getAddress(), "AtlasToken");
+  await token.waitForDeployment();
+  const tokenAddress = await token.getAddress();
+  console.log("Token contract address", tokenAddress);
+  saveFrontendFiles(tokenAddress, "TestToken");
 
   poolMaster = await PoolMaster.deploy();
+  await poolMaster.waitForDeployment();
   console.log("PoolMaster contract address", await poolMaster.getAddress());
   saveFrontendFiles(await poolMaster.getAddress(), "PoolMaster");
 
   // const usdcAddress = usdc.address
-  const tokenAddress = await token.getAddress();
   // const usdcAddress = "0x5d7897579269F234015ba65743D9108F4AD5dB22" // sepolia
   // const usdcAddress = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"; // arbitrum
   const usdcAddress = "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"; // goerli
   // const tokenAddress = "0x4F69a31125a4bA6a51786181d5cC5a15E69df0c5"
-
-  await token.waitForDeployment();
-  await poolMaster.waitForDeployment();
 
   const setTokenCall = await poolMaster.setTokenAddress(tokenAddress);
   const setUsdcCall = await poolMaster.setUsdcAddress(usdcAddress);
@@ -52,13 +47,6 @@ async function main() {
     setTokenCallTx.hash,
     setUsdcCallTx.hash
   );
-
-  // to remove for mainnet
-  // await poolMaster.startEpoch("BNB", "ETH");
-  // console.log("Test functions called")
-
-  // todo
-  // console.log("Transfer Ownership functions called")
 
   console.log(
     "Eth spent for deployment script: ",

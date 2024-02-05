@@ -8,12 +8,12 @@ const { Mutex } = require("async-mutex");
 const router = express.Router();
 
 const PoolMasterAbi = JSON.parse(
-  fs.readFileSync("./contractsData/PoolMaster.json")
+  fs.readFileSync("contractsData/PoolMaster.json")
 );
 const PoolMasterAddress = JSON.parse(
-  fs.readFileSync("./contractsData/PoolMaster-address.json")
+  fs.readFileSync("contractsData/PoolMaster-address.json")
 );
-const tokenList = JSON.parse(fs.readFileSync("./tokens.json"));
+const tokenList = JSON.parse(fs.readFileSync("tokens.json"));
 
 dotenv.config();
 
@@ -56,35 +56,48 @@ router.post("/", async (req, res) => {
     console.log("poolMaster address", poolMaster.address);
 
     console.log("Getting current phase...");
-    await delay(10000); // Delay for 1 second, adjust as needed
+    await delay(10000);
 
     const phase = parseInt(await poolMaster.getPhase());
     console.log("phase", phase);
 
-    await delay(10000); // Another delay
+    await delay(10000);
     const epochEnded = await poolMaster.epochEnded();
     console.log("epochEnded", epochEnded);
 
     if (phase === 2 && !epochEnded) {
       console.log("Finding out winner...");
-      const pool0 = await poolMaster.pools(0);
-      const pool1 = await poolMaster.pools(1);
+      const fetchedToken1 = await getTokenBySymbol(
+        await poolMaster.getSymbol(0)
+      );
+      const fetchedToken2 = await getTokenBySymbol(
+        await poolMaster.getSymbol(1)
+      );
 
-      const fetchedToken1 = await getTokenBySymbol(pool0.symbol);
-      const fetchedToken2 = await getTokenBySymbol(pool1.symbol);
+      console.log(
+        "fetchedToken1",
+        fetchedToken1,
+        "fetchedToken2",
+        fetchedToken2
+      );
 
-      const initialPrice1 = parseFloat(pool0.price);
-      const initialPrice2 = parseFloat(pool1.price);
+      console.log("Getting initial prices...");
+      let initialPrice1 = await poolMaster.getInitialPrice(0);
+      let initialPrice2 = await poolMaster.getInitialPrice(1);
+      initialPrice1 = parseFloat(initialPrice1);
+      initialPrice2 = parseFloat(initialPrice2);
       console.log("initial prices: ", initialPrice1, initialPrice2);
 
+      console.log("Getting current prices...");
       const fetchedPrice1 = parseFloat(fetchedToken1.price);
       const fetchedPrice2 = parseFloat(fetchedToken2.price);
-      console.log("fetched prices: ", fetchedPrice1, fetchedPrice2);
+      console.log("current prices: ", fetchedPrice1, fetchedPrice2);
 
       const performance1 =
         ((fetchedPrice1 - initialPrice1) / initialPrice1) * 100;
       const performance2 =
         ((fetchedPrice2 - initialPrice2) / initialPrice2) * 100;
+
       console.log("performance1", performance1);
       console.log("performance2", performance2);
 
@@ -101,6 +114,7 @@ router.post("/", async (req, res) => {
       } catch (error) {
         console.log(error);
         res.status(500).json(error);
+        isEpochOperationInProgress = false;
         release();
         return;
       }
@@ -120,23 +134,30 @@ router.post("/", async (req, res) => {
       try {
         await poolMaster.startEpoch(
           nextToken1Symbol,
-          token1.price,
+          String(token1.price),
           nextToken2Symbol,
-          token2.price
+          String(token2.price)
         );
         console.log("start epoch success");
       } catch (error) {
         console.log(error);
         res.status(500).json(error);
+        isEpochOperationInProgress = false;
         release();
         return;
       }
     } else {
       console.log("No epoch action required");
       res.status(200).json({ msg: "No epoch action required" });
+      isEpochOperationInProgress = false;
+      release();
+      return;
     }
 
     res.status(200).json({ msg: "Epoch operation completed" });
+    isEpochOperationInProgress = false;
+    release();
+    return;
   } catch (error) {
     console.error("Error during epoch operation:", error);
     res.status(500).json({ error: "Server error during epoch operation" });

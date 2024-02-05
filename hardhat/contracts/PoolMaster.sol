@@ -62,8 +62,6 @@ contract PoolMaster is Ownable, ReentrancyGuard {
         bool isUsdc;
     }
 
-    event MintSuccessful(address user, uint256 tokenId, bool isAlpha);
-
     constructor() {
         pools.push(Pool("", "", "", 0, 0, 0, 0));
         pools.push(Pool("", "", "", 0, 0, 0, 0));
@@ -361,6 +359,12 @@ contract PoolMaster is Ownable, ReentrancyGuard {
 
     function getSymbol(uint256 _poolId) public view returns (string memory) {
         return pools[_poolId].symbol;
+    }
+
+    function getInitialPrice(
+        uint256 _poolId
+    ) public view returns (string memory) {
+        return pools[_poolId].price;
     }
 
     function getWinnerAddressAmountsForLastSeconds(

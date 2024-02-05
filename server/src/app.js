@@ -2,18 +2,21 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
-const app = express();
-app.use(cors());
+const { startBot } = require("./bot.js");
 
 dotenv.config();
 
-let homeRoutes = require("./routes/home.js");
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 let endEpochRoutes = require("./routes/end_epoch.js");
 
-app.use("/api/", homeRoutes);
 app.use("/api/end_epoch", endEpochRoutes);
 
 // Start the server
-app.listen(process.env.PORT, () => {
-  console.log("Running on port " + process.env.PORT);
+const PORT = process.env.PORT || 3333;
+app.listen(PORT, () => {
+  console.log("Running on port " + PORT);
+  startBot();
 });
