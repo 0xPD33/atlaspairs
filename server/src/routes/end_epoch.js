@@ -101,7 +101,14 @@ router.post("/", async (req, res) => {
       console.log("performance1", performance1);
       console.log("performance2", performance2);
 
-      const winnerId = performance1 > performance2 ? 0 : 1;
+      let winnerId;
+      if (performance1 < 0 && performance2 < 0) {
+        // The token that lost less value (less negative) is the winner
+        winnerId = performance1 > performance2 ? 0 : 1;
+      } else {
+        // In all other cases (both increase or one increases & one decreases), higher performance wins
+        winnerId = performance1 > performance2 ? 0 : 1;
+      }
 
       console.log("winnerId", winnerId);
 
