@@ -6,27 +6,28 @@ const { Mutex } = require("async-mutex");
 
 const router = express.Router();
 
-let poolPhase = 0; // Default phase
+let poolPhase = 0;
+
 router.post("/", async (req, res) => {
-  try {
-    const { phase } = req.body;
-    poolPhase = phase;
-    res.json({
-      phase: poolPhase,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+	try {
+		const { phase } = req.body;
+		poolPhase = phase;
+		res.json({
+			phase: poolPhase,
+		});
+	} catch (error) {
+		res.status(500).json({ success: false, message: error.message });
+	}
 });
 
 router.get("/", async (req, res) => {
-  try {
-    res.json({
-      phase: poolPhase,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+	try {
+		res.json({
+			phase: poolPhase,
+		});
+	} catch (error) {
+		res.status(500).json({ success: false, message: error.message });
+	}
 });
 
 module.exports = router;

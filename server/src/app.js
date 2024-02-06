@@ -10,8 +10,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let endEpochRoutes = require("./routes/end_epoch.js");
-let phaseRoutes = require("./routes/phase.js");
+const endEpochRoutes = require("./routes/end_epoch.js");
+const phaseRoutes = require("./routes/phase.js");
 
 app.use("/api/phase", phaseRoutes);
 app.use("/api/end_epoch", endEpochRoutes);
@@ -19,6 +19,6 @@ app.use("/api/end_epoch", endEpochRoutes);
 // Start the server
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
-  console.log("Running on port " + PORT);
-  startBot();
+	console.log(`Running on port ${PORT}`);
+	startBot();
 });
