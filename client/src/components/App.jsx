@@ -27,7 +27,7 @@ import PoolMasterAddress from "../data/PoolMaster-address.json";
 const API_ENDPOINT =
   import.meta.env.PROD === "true"
     ? "/api/end_epoch"
-    : "http://localhost:3333/api/end_epoch";
+    : "http://localhost:3333/api/phase";
 
 const RPC_URL = import.meta.env.VITE_RPC_URL;
 const NETWORK = import.meta.env.VITE_NETWORK;
@@ -168,7 +168,6 @@ function App() {
       return;
 
     const poolMasterCalls = [
-      contracts.poolMasterMulticall.getPhase(),
       contracts.poolMasterMulticall.timestampStartEpoch(),
       contracts.poolMasterMulticall.bettingPhaseDuration(),
       contracts.poolMasterMulticall.battlingPhaseDuration(),
@@ -184,30 +183,47 @@ function App() {
     try {
       const results = await contracts.multicallProvider.all(poolMasterCalls);
 
-      const phase = parseInt(results[0], 10);
-      setPhase(phase);
-      const timestampStartEpoch = parseInt(results[1], 10);
+      const timestampStartEpoch = parseInt(results[0], 10);
       setTimestampStartEpoch(timestampStartEpoch);
 
       const timerDuration =
-        phase === 0 ? parseInt(results[2], 10) : parseInt(results[3], 10);
+        phase === 0 ? parseInt(results[1], 10) : parseInt(results[2], 10);
 
       initTimer(timestampStartEpoch, timerDuration);
 
       if (account !== null) {
-        setStakedAmountForAddress(fromWei(results[4]));
-        setPoolIdForAddress(parseInt(results[5], 10));
+        setStakedAmountForAddress(fromWei(results[3]));
+        setPoolIdForAddress(parseInt(results[4], 10));
       }
 
       await loadPoolData();
-
-      // if (phase === 2) {
-      //   await requestEndEpoch();
-      // }
     } catch (error) {
       console.error("Error fetching contract data:", error);
     }
   }, [account, contracts.multicallProvider, contracts.poolMasterMulticall]);
+
+  const fetchPhase = async () => {
+    try {
+      const response = await Axios.get(API_ENDPOINT);
+      const newPhase = Number(response.data.phase);
+
+      if (newPhase !== phase) {
+        setPhase(newPhase);
+        setTimeout(async () => {
+          await fetchContractData();
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Error fetching phase:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPhase();
+    setInterval(async () => {
+      await fetchPhase();
+    }, 3000);
+  }, []);
 
   const loadTimerData = async () => {
     if (!contracts.multicallProvider || !contracts.poolMasterMulticall) return;

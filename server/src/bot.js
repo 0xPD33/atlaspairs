@@ -19,7 +19,6 @@ let phase = 0;
 async function checkContractState(contract) {
   phase = await contract.getPhase();
   await triggerPhaseUpdate();
-  console.log("Bot fetched Poolmaster phase:", phase.toString());
   if (phase.toString() === "2") {
     console.log(
       "Poolmaster contract in actionable state. Triggering server endpoint..."
@@ -39,7 +38,7 @@ async function startBot() {
   checkContractState(contract);
   setInterval(async () => {
     await checkContractState(contract);
-  }, 1 * 30 * 1000); // Check every 30 seconds
+  }, 1 * 10 * 1000); // Check every 10 seconds
 }
 
 async function triggerPhaseUpdate() {

@@ -24,6 +24,18 @@ let release;
 const semaphore = new Mutex();
 let isEpochOperationInProgress = false;
 
+const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
+  name: "goerli",
+  chainId: 5,
+});
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+const poolMaster = new ethers.Contract(
+  PoolMasterAddress.address,
+  PoolMasterAbi.abi,
+  wallet
+);
+
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); // Delay is probably only needed for testing on slow testnets
 
 router.post("/", async (req, res) => {
@@ -41,27 +53,12 @@ router.post("/", async (req, res) => {
     isEpochOperationInProgress = true;
     console.log("Starting epoch operation...");
 
-    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
-      name: "goerli",
-      chainId: 5,
-    });
-    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-    console.log("wallet address", wallet.address);
-
-    const poolMaster = new ethers.Contract(
-      PoolMasterAddress.address,
-      PoolMasterAbi.abi,
-      wallet
-    );
-    console.log("poolMaster address", poolMaster.address);
-
     console.log("Getting current phase...");
-    await delay(5000);
+    await delay(10000);
 
     const phase = parseInt(await poolMaster.getPhase());
     console.log("phase", phase);
 
-    await delay(3000);
     const epochEnded = await poolMaster.epochEnded();
     console.log("epochEnded", epochEnded);
 
@@ -116,8 +113,7 @@ router.post("/", async (req, res) => {
       try {
         let transaction = await poolMaster.endEpoch(winnerId);
         let receipt = await provider.waitForTransaction(transaction.hash);
-        console.log("Transaction has been mined:");
-        console.log(receipt);
+        console.log("Transaction hash:", receipt.transactionHash);
       } catch (error) {
         console.log(error);
         res.status(500).json(error);
