@@ -14,8 +14,11 @@ const PoolMasterAddress = JSON.parse(
 
 const API_ENDPOINT = "http://localhost:3333/api/end_epoch";
 
+let phase = 0;
+
 async function checkContractState(contract) {
-  const phase = await contract.getPhase();
+  phase = await contract.getPhase();
+  await triggerPhaseUpdate();
   console.log("Bot fetched Poolmaster phase:", phase.toString());
   if (phase.toString() === "2") {
     console.log(
@@ -36,13 +39,22 @@ async function startBot() {
   checkContractState(contract);
   setInterval(async () => {
     await checkContractState(contract);
-  }, 1 * 60 * 1000); // Check every minute
+  }, 1 * 30 * 1000); // Check every 30 seconds
+}
+
+async function triggerPhaseUpdate() {
+  try {
+    await axios.post("http://localhost:3333/api/phase", {
+      phase: phase.toString(),
+    });
+  } catch (error) {
+    console.error("Failed to trigger phase update:", error);
+  }
 }
 
 async function triggerServerEndpoint() {
   try {
-    const response = await axios.post(API_ENDPOINT);
-    console.log("Server response:", response.data);
+    await axios.post(API_ENDPOINT);
   } catch (error) {
     console.error("Failed to trigger server endpoint:", error);
   }

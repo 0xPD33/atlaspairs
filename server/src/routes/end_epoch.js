@@ -56,12 +56,12 @@ router.post("/", async (req, res) => {
     console.log("poolMaster address", poolMaster.address);
 
     console.log("Getting current phase...");
-    await delay(10000);
+    await delay(5000);
 
     const phase = parseInt(await poolMaster.getPhase());
     console.log("phase", phase);
 
-    await delay(10000);
+    await delay(3000);
     const epochEnded = await poolMaster.epochEnded();
     console.log("epochEnded", epochEnded);
 

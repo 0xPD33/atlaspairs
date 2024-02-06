@@ -11,7 +11,9 @@ app.use(cors());
 app.use(express.json());
 
 let endEpochRoutes = require("./routes/end_epoch.js");
+let phaseRoutes = require("./routes/phase.js");
 
+app.use("/api/phase", phaseRoutes);
 app.use("/api/end_epoch", endEpochRoutes);
 
 // Start the server

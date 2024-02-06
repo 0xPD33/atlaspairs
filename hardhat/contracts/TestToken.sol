@@ -7,4 +7,8 @@ contract TestToken is ERC20 {
     constructor() ERC20("AtlasPairs", "ATLAS") {
         _mint(msg.sender, 1_000_000 * 10 ** 18);
     }
+
+    function mint() public {
+        _mint(msg.sender, 1_000 * 10 ** 18);
+    }
 }

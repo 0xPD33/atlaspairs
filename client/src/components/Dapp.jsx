@@ -46,21 +46,20 @@ const Dapp = ({
   };
 
   const stake = async () => {
-    let amount = toWei(chosenAmount);
-    let isUsdc = chosenUsdc;
+    let amount = chosenUsdc
+      ? ethers.utils.parseUnits(chosenAmount.toString(), 6)
+      : toWei(chosenAmount);
+    let tokenToApprove = chosenUsdc ? usdc : token;
 
     setShowPlaceBetPopup(false);
 
-    if (chosenUsdc) {
-      amount = ethers.utils.parseUnits(chosenAmount.toString(), 6);
-      if (parseInt(await usdc.allowance(account, poolMaster.address)) < amount)
-        await (await usdc.approve(poolMaster.address, amount)).wait();
-    } else {
-      if (parseInt(await token.allowance(account, poolMaster.address)) < amount)
-        await (await token.approve(poolMaster.address, amount)).wait();
-    }
+    if (
+      parseInt(await tokenToApprove.allowance(account, poolMaster.address)) <
+      amount
+    )
+      await (await tokenToApprove.approve(poolMaster.address, amount)).wait();
 
-    await poolMaster.stake(chosenPool, amount, isUsdc);
+    await poolMaster.stake(chosenPool, amount, chosenUsdc);
   };
 
   return (
