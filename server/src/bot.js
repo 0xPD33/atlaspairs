@@ -2,30 +2,23 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 const { ethers } = require("ethers");
 const fs = require("fs");
+const { provider, poolMaster } = require("./global");
+const { getPhaseEndTimestamp } = require("./utils");
 
 dotenv.config();
 
-const PoolMasterAbi = JSON.parse(
-	fs.readFileSync("contractsData/PoolMaster.json"),
-);
-const PoolMasterAddress = JSON.parse(
-	fs.readFileSync("contractsData/PoolMaster-address.json"),
-);
-
-const API_ENDPOINT = "http://localhost:3333/api/end_epoch";
-
 let phase = 0;
-let lastTriggerTime = 0; // Track the last time the endpoint was triggered
-const COOLDOWN_PERIOD = 300; // Cooldown period in seconds (e.g., 300s = 5 minutes)
+let endTimestamp = 0;
 
-async function checkContractState(contract) {
-	phase = await contract.getPhase();
+let lastTriggerTime = 0;
+const COOLDOWN_PERIOD = 15; // Cooldown period in seconds
+
+async function checkContractState() {
+	phase = Number(await poolMaster.getPhase());
+	endTimestamp = await getPhaseEndTimestamp(phase);
 	await triggerPhaseUpdate();
-	const currentTime = new Date().getTime() / 1000;
-	if (
-		phase.toString() === "2" &&
-		currentTime - lastTriggerTime > COOLDOWN_PERIOD
-	) {
+	const currentTime = Date.now() / 1000;
+	if (phase === 2 && currentTime - lastTriggerTime > COOLDOWN_PERIOD) {
 		console.log(
 			"Poolmaster contract in actionable state. Triggering server endpoint...",
 		);
@@ -35,26 +28,17 @@ async function checkContractState(contract) {
 }
 
 async function startBot() {
-	const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
-	const contract = new ethers.Contract(
-		PoolMasterAddress.address,
-		PoolMasterAbi.abi,
-		provider,
-	);
-
-	checkContractState(contract);
-	setInterval(
-		async () => {
-			await checkContractState(contract);
-		},
-		1 * 15 * 1000,
-	); // Check every 15 seconds
+	checkContractState();
+	setInterval(async () => {
+		await checkContractState();
+	}, COOLDOWN_PERIOD * 1000);
 }
 
 async function triggerPhaseUpdate() {
 	try {
 		await axios.post("http://localhost:3333/api/phase", {
 			phase: phase.toString(),
+			endTimestamp: endTimestamp.toString(),
 		});
 	} catch (error) {
 		console.error("Failed to trigger phase update:", error);
@@ -63,7 +47,7 @@ async function triggerPhaseUpdate() {
 
 async function triggerServerEndpoint() {
 	try {
-		await axios.post(API_ENDPOINT);
+		await axios.post("http://localhost:3333/api/end_epoch");
 	} catch (error) {
 		console.error("Failed to trigger server endpoint:", error);
 	}

@@ -8,7 +8,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
-  let balanceBefore = fromWei(
+  const balanceBefore = fromWei(
     await deployer.provider.getBalance(deployer.address)
   );
   console.log(
@@ -57,21 +57,21 @@ async function main() {
 
 function saveFrontendFiles(address, name) {
   const fs = require("fs");
-  const contractsDir = __dirname + "../../contractsData";
+  const contractsDir = `${__dirname}../../contractsData`;
 
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);
   }
 
   fs.writeFileSync(
-    contractsDir + `/${name}-address.json`,
+    `${contractsDir}/${name}-address.json`,
     JSON.stringify({ address: address }, undefined, 2)
   );
 
   const contractArtifact = artifacts.readArtifactSync(name);
 
   fs.writeFileSync(
-    contractsDir + `/${name}.json`,
+    `${contractsDir}/${name}.json`,
     JSON.stringify(contractArtifact, null, 2)
   );
 }

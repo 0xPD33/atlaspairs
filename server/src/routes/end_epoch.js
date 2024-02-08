@@ -141,7 +141,7 @@ router.post("/", async (req, res) => {
 					nextToken2Symbol,
 					String(token2.price),
 				);
-				console.log("Epoch started successfully.");
+				console.log("Epoch started");
 			} catch (error) {
 				console.log(error);
 				res.status(500).json(error);

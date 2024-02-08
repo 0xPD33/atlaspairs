@@ -38,6 +38,7 @@ const toWei = (num) => ethers.utils.parseEther(num.toString());
 
 function App() {
   const [account, setAccount] = useState(null);
+  const [setupDone, setSetupDone] = useState(false);
 
   // Consolidate states related to contracts into a single state object
   // This helps in managing related data together and reduces the number of state hooks
@@ -53,60 +54,68 @@ function App() {
     usdcMulticall: {},
   });
 
-  const [phase, setPhase] = useState(0);
+  const [currentPhase, setCurrentPhase] = useState(null);
   const [stakedAmountForAddress, setStakedAmountForAddress] = useState(0);
   const [poolIdForAddress, setPoolIdForAddress] = useState(0);
-  const [timestampStartEpoch, setTimestampStartEpoch] = useState(0);
-  const [timeleft, setTimeleft] = useState(null);
+  const [shouldUpdateTimer, setShouldUpdateTimer] = useState(false);
+  const [endTimestamp, setEndTimestamp] = useState(0);
+  const [timeleft, setTimeleft] = useState(0);
   const [pools, setPools] = useState([0, 1, 2]);
 
   const [menu, setMenu] = useState(0);
   const [popup, setPopup] = useState(0);
-  const [intervalVariable, setIntervalVariable] = useState(null);
 
   const intervalRef = useRef();
-  intervalRef.current = intervalVariable;
-
   const poolMasterRef = useRef();
-  poolMasterRef.current = contracts.poolMaster;
 
-  const initTimer = useCallback((startTimestamp, duration) => {
-    if (startTimestamp == 0) {
-      setTimeleft(0);
-      return;
+  const initTimer = useEffect(() => {
+    // Clear any existing timer
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-    const testOffset = 0 * 24 * 60 * 1000; // Set to 0 for live version
 
-    const timestampEnd = (startTimestamp + duration) * 1000;
-    let timeleftTemp = timestampEnd - Date.now() - testOffset;
+    let timerEnded = false;
 
-    let dateNow = Date.now() + testOffset;
-    setTimeleft(timeleftTemp);
+    const updateTimer = () => {
+      const currentTime = parseInt(Date.now() / 1000);
+      const timeLeft = Math.max(0, endTimestamp - currentTime);
+      setTimeleft(timeLeft);
 
-    if (intervalRef.current == null) {
-      let intervalId = setInterval(() => {
-        dateNow = Date.now() + testOffset;
+      // Check if the timer has ended and the fetch hasn't been triggered yet
+      if (timeLeft <= 0 && !timerEnded) {
+        console.log("Phase Interval was just reset.");
+        timerEnded = true;
+        clearInterval(intervalRef.current); // Clear the interval to stop the timer
+        intervalRef.current = null;
+      }
+    };
 
-        let timeleftTemp = timestampEnd - dateNow;
-        setTimeleft(timeleftTemp);
-
-        // if (timeleftTemp <= 0 && phase < 2) {
-        //   loadContractsData()
-        //   clearInterval(intervalId);
-        //   console.log("reset interval")
-        // }
-      }, 1000);
-
-      intervalRef.current = intervalId;
-      setIntervalVariable(intervalId);
-    }
-  }, []);
+    intervalRef.current = setInterval(updateTimer, 1000);
+    updateTimer();
+  }, [endTimestamp]);
 
   const setupBrowserClient = useCallback(async () => {
     const [account] = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
     setAccount(account);
+
+    const networkId = await window.ethereum.request({
+      method: "net_version",
+    });
+
+    // If not connected to the Goerli testnet, ask to switch
+    if (networkId !== "5") {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x5" }],
+        });
+      } catch (switchError) {
+        console.error(switchError);
+      }
+    }
 
     const writeProvider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = writeProvider.getSigner();
@@ -122,6 +131,8 @@ function App() {
       signer
     );
     const usdc = new ethers.Contract(UsdcAddress.address, UsdcAbi.abi, signer);
+
+    poolMasterRef.current = poolMaster;
 
     setContracts((prev) => ({
       ...prev,
@@ -163,99 +174,12 @@ function App() {
     }));
   };
 
-  const fetchContractData = useCallback(async () => {
-    if (contracts.multicallProvider === null || !contracts.poolMasterMulticall)
-      return;
-
-    const poolMasterCalls = [
-      contracts.poolMasterMulticall.timestampStartEpoch(),
-      contracts.poolMasterMulticall.bettingPhaseDuration(),
-      contracts.poolMasterMulticall.battlingPhaseDuration(),
-    ];
-
-    if (account !== null) {
-      poolMasterCalls.push(
-        contracts.poolMasterMulticall.getStakedTokensForAddress(account),
-        contracts.poolMasterMulticall.getPoolIdForAddress(account)
-      );
-    }
-
-    try {
-      const results = await contracts.multicallProvider.all(poolMasterCalls);
-
-      const timestampStartEpoch = parseInt(results[0], 10);
-      setTimestampStartEpoch(timestampStartEpoch);
-
-      const timerDuration =
-        phase === 0 ? parseInt(results[1], 10) : parseInt(results[2], 10);
-
-      initTimer(timestampStartEpoch, timerDuration);
-
-      if (account !== null) {
-        setStakedAmountForAddress(fromWei(results[3]));
-        setPoolIdForAddress(parseInt(results[4], 10));
-      }
-
-      await loadPoolData();
-    } catch (error) {
-      console.error("Error fetching contract data:", error);
-    }
-  }, [account, contracts.multicallProvider, contracts.poolMasterMulticall]);
-
-  const fetchPhase = async () => {
-    try {
-      const response = await Axios.get(API_ENDPOINT);
-      const newPhase = Number(response.data.phase);
-
-      if (newPhase !== phase) {
-        setPhase(newPhase);
-        setTimeout(async () => {
-          await fetchContractData();
-        }, 500);
-      }
-    } catch (error) {
-      console.error("Error fetching phase:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchPhase();
-    setInterval(async () => {
-      await fetchPhase();
-    }, 3000);
-  }, []);
-
-  const loadTimerData = async () => {
-    if (!contracts.multicallProvider || !contracts.poolMasterMulticall) return;
-
-    try {
-      const bettingPhaseDurationCall =
-        contracts.poolMasterMulticall.bettingPhaseDuration();
-      const battlingPhaseDurationCall =
-        contracts.poolMasterMulticall.battlingPhaseDuration();
-
-      const [bettingPhaseDuration, battlingPhaseDuration] =
-        await contracts.multicallProvider.all([
-          bettingPhaseDurationCall,
-          battlingPhaseDurationCall,
-        ]);
-
-      const timerDuration =
-        phase === 0
-          ? parseInt(bettingPhaseDuration, 10)
-          : parseInt(battlingPhaseDuration, 10);
-
-      initTimer(timestampStartEpoch, timerDuration);
-    } catch (error) {
-      console.error("Error fetching timer data with multicall:", error);
-    }
-  };
-
   const loadPoolData = async () => {
     const calls = [0, 1, 2].flatMap((id) => [
       contracts.poolMasterMulticall.getSymbol(id),
       contracts.poolMasterMulticall.getStakedTokens(id, false),
       contracts.poolMasterMulticall.getStakedTokens(id, true),
+      contracts.poolMasterMulticall.getInitialPrice(id),
       id < 2
         ? contracts.poolMasterMulticall.getLastWinner(id)
         : Promise.resolve(null),
@@ -265,41 +189,97 @@ function App() {
     const results = await contracts.multicallProvider.all(calls);
 
     const poolsTemp = [0, 1, 2].map((id, index) => ({
-      token: id < 2 ? results[index * 4] : undefined,
-      tokenCount: fromWei(results[index * 4 + 1]),
-      usdcCount: ethers.utils.formatUnits(results[index * 4 + 2], 6),
-      lastWinner: results[index * 4 + 3],
+      token: id < 2 ? results[index * 5] : undefined,
+      tokenCount: fromWei(results[index * 5 + 1]),
+      usdcCount: ethers.utils.formatUnits(results[index * 5 + 2], 6),
+      initialPrice: results[index * 5 + 3],
+      lastWinner: results[index * 5 + 4],
     }));
 
     setPools(poolsTemp);
   };
 
-  // not needed anymore, as the bot now starts/ends each epoch
-  // const requestEndEpoch = async () => {
-  //   Axios.post(API_ENDPOINT).then((response) => {
-  //     // production environment
-  //     const serverResult = response.data;
-  //     console.log(serverResult);
+  const fetchContractData = useCallback(async () => {
+    if (
+      contracts.multicallProvider === null ||
+      !contracts.poolMasterMulticall
+    ) {
+      console.log("multicallProvider is null");
+      return;
+    }
 
-  //     if (serverResult.msg == "success") loadContractsData();
-  //   });
-  // };
+    if (account !== null) {
+      const poolMasterCalls = [
+        contracts.poolMasterMulticall.getStakedTokensForAddress(account),
+        contracts.poolMasterMulticall.getPoolIdForAddress(account),
+      ];
+      try {
+        const results = await contracts.multicallProvider.all(poolMasterCalls);
+        if (account !== null) {
+          setStakedAmountForAddress(fromWei(results[0]));
+          setPoolIdForAddress(parseInt(results[1], 10));
+        }
+      } catch (error) {
+        console.error("Error fetching contract data:", error);
+      }
+    }
+
+    await loadPoolData();
+  }, [
+    account,
+    contracts.multicallProvider,
+    contracts.poolMasterMulticall,
+    loadPoolData,
+  ]);
+
+  const fetchPhase = useCallback(async () => {
+    try {
+      const response = await Axios.get(API_ENDPOINT);
+      const { phase, endTimestamp } = response.data;
+
+      if (currentPhase !== Number(phase)) {
+        setCurrentPhase(Number(phase));
+        setEndTimestamp(Number(endTimestamp));
+        setShouldUpdateTimer(true);
+      }
+      return phase;
+    } catch (error) {
+      console.error("Error fetching phase:", error);
+    }
+  }, [currentPhase]);
+
+  useEffect(() => {
+    if (!shouldUpdateTimer) return;
+    console.log("Fetching contract data after setting new phase...");
+    fetchContractData();
+  }, [shouldUpdateTimer]);
 
   useEffect(() => {
     async function initializeWeb3() {
       await setupReadClient();
+      setSetupDone(true);
     }
+
     initializeWeb3();
   }, []);
 
   useEffect(() => {
-    async function loadInitialContractData() {
-      await fetchContractData();
+    if (setupDone) {
+      fetchPhase();
+      const phaseInterval = setInterval(fetchPhase, 10000);
+
+      return () => clearInterval(phaseInterval);
     }
-    if (contracts.multicallProvider && contracts.poolMasterMulticall) {
-      loadInitialContractData();
+  }, [setupDone]);
+
+  useEffect(() => {
+    if (setupDone && contracts.multicallProvider) {
+      fetchContractData();
+
+      const contractDataInterval = setInterval(fetchContractData, 15000);
+      return () => clearInterval(contractDataInterval);
     }
-  }, [contracts.multicallProvider, contracts.poolMasterMulticall]);
+  }, [setupDone, contracts.multicallProvider]);
 
   const closePopup = () => {
     setPopup(0);
@@ -318,7 +298,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App" id="wrapper">
-        <div className="m-0 p-0 container-fluid">
+        <div className="m-0 p-0">
           <Routes>
             <Route
               path="/"
@@ -343,7 +323,7 @@ function App() {
                     account={account}
                     usdc={contracts.usdc}
                     token={contracts.token}
-                    phase={phase}
+                    phase={currentPhase}
                     timeleft={timeleft}
                     pools={pools}
                     stakedAmountForAddress={stakedAmountForAddress}
@@ -367,14 +347,6 @@ function App() {
               }
             />
           </Routes>
-          {/* {
-            {
-              '0': <Home poolMaster={poolMaster} account={account} usdc={usdc} token={token} phase={phase} timeleft={timeleft}
-                pools={pools} stakedAmountForAddress={stakedAmountForAddress} poolIdForAddress={poolIdForAddress} 
-                requestEndEpoch={requestEndEpoch} />,
-              '1': <Leaderboard network={NETWORK} />
-            }[menu]
-          } */}
         </div>
       </div>
       <MouseFollower />

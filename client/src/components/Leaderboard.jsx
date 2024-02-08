@@ -8,6 +8,12 @@ const fromWei = (num) => Math.ceil(ethers.utils.formatEther(num));
 const toWei = (num) => ethers.utils.parseEther(num.toString());
 
 const Leaderboard = ({ network }) => {
+  return (
+    <>
+      <div className="mt-8 text-2xl">Coming soon!</div>
+    </>
+  );
+
   const [poolMaster, setPoolMaster] = useState(null);
   const [elements, setElements] = useState([]);
 

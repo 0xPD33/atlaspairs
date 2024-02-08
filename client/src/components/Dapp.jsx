@@ -17,7 +17,6 @@ const Dapp = ({
   pools,
   stakedAmountForAddress,
   poolIdForAddress,
-  // requestEndEpoch,
 }) => {
   const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false);
   const [chosenPool, setChosenPool] = useState(0);
@@ -29,8 +28,8 @@ const Dapp = ({
   };
 
   const phaseIdToText = () => {
-    if (phase == 2) return "Epoch Ended";
-    if (phase == 1) return "Battling Phase";
+    if (phase === 2) return "Epoch Ended";
+    if (phase === 1) return "Battling Phase";
     return "Betting Phase";
   };
 
@@ -38,7 +37,7 @@ const Dapp = ({
     setChosenPool(poolId);
     setShowPlaceBetPopup(true);
 
-    if (poolId == 2) setChosenUsdc(false);
+    if (poolId === 2) setChosenUsdc(false);
   };
 
   const toggleTokenSwitch = () => {
@@ -46,10 +45,10 @@ const Dapp = ({
   };
 
   const stake = async () => {
-    let amount = chosenUsdc
+    const amount = chosenUsdc
       ? ethers.utils.parseUnits(chosenAmount.toString(), 6)
       : toWei(chosenAmount);
-    let tokenToApprove = chosenUsdc ? usdc : token;
+    const tokenToApprove = chosenUsdc ? usdc : token;
 
     setShowPlaceBetPopup(false);
 
@@ -62,16 +61,20 @@ const Dapp = ({
     await poolMaster.stake(chosenPool, amount, chosenUsdc);
   };
 
+  const claim = async () => {
+    await (await token.mint()).wait();
+  };
+
   return (
-    <div className="h-screen pt-8">
-      <div className="pt-16 flex justify-center gap-10">
+    <div className="h-full py-8 flex flex-col items-center">
+      <div className="pt-16 flex justify-center gap-12">
         {pools.map((pool, index) => (
           <div
             key={index}
             className="lg:min-w-[280px] lg:min-h-[360px] xl:min-w-[360px] xl:min-h-[440px]"
           >
             <PoolCard
-              key={index}
+              key={index + 1}
               pool={pool}
               poolNumber={index + 1}
               phase={phase}
@@ -83,11 +86,6 @@ const Dapp = ({
           </div>
         ))}
       </div>
-      {stakedAmountForAddress > 0 && (
-        <div className="mt-8 text-center">
-          You bet {stakedAmountForAddress} in vault {poolIdForAddress + 1}
-        </div>
-      )}
       {pools != null && pools.length > 0 && (
         <div className="text-shadow mt-32 text-center">
           <p className="text-2xl">
@@ -101,6 +99,14 @@ const Dapp = ({
           </p>
         </div>
       )}
+      <div className="p-2 mt-16 rounded-md bg-black/50 w-1/4 flex flex-col items-center">
+        <p>Testnet Faucet</p>
+        <div className="gap-4 flex py-2">
+          <button onClick={claim} className="main-button">
+            Claim $ATLAS
+          </button>
+        </div>
+      </div>
       {showPlaceBetPopup && (
         <>
           <div className="fixed inset-0 bg-black/30 z-50">
@@ -114,13 +120,13 @@ const Dapp = ({
                     <label htmlFor="custom-switch" className="mr-2">
                       {chosenUsdc ? "USDC" : "$ATLAS"}
                     </label>
-                    <input
+                    {/* <input
                       type="checkbox"
                       id="custom-switch"
                       className="toggle toggle-primary"
                       checked={!chosenUsdc}
                       onChange={toggleTokenSwitch}
-                    />
+                    /> */}
                   </div>
                 )}
                 <div className="my-4">
@@ -134,8 +140,6 @@ const Dapp = ({
                   <input
                     type="range"
                     className="mt-4"
-                    min={5}
-                    max={500}
                     step={1}
                     value={chosenAmount}
                     onChange={onChangeChosenAmount}

@@ -324,7 +324,10 @@ contract PoolMaster is Ownable, ReentrancyGuard {
 
     function getPhase() public view returns (uint256) {
         uint256 _timeElapsed = block.timestamp - timestampStartEpoch;
-        if (_timeElapsed > battlingPhaseDuration || epochEnded) return 2;
+        if (
+            _timeElapsed > bettingPhaseDuration + battlingPhaseDuration ||
+            epochEnded
+        ) return 2;
         // epoch ended
         else if (_timeElapsed > bettingPhaseDuration) return 1; // battling phase
         return 0; // betting phase

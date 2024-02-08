@@ -1,43 +1,16 @@
 const zeroPad = (num, places) => String(num).padStart(places, "0");
-const units = {
-  year: 31536000000,
-  month: 2628000000,
-  day: 86400000,
-  hour: 3600000,
-  minute: 60000,
-  second: 1000,
-};
 
-export const getTimeLeftStringStartDuration = (
-  currentTimestamp,
-  startTimestamp,
-  duration
-) => {
-  // console.log("getTimeLeftStringStartDuration", startTimestamp, duration, currentTimestamp)
-  return getTimeLeftString(startTimestamp + duration - currentTimestamp);
-};
+export const getTimeLeftString = (secondsLeft) => {
+  if (secondsLeft > 0) {
+    const days = Math.floor(secondsLeft / (60 * 60 * 24));
+    const hours = Math.floor((secondsLeft % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((secondsLeft % (60 * 60)) / 60);
+    const seconds = Math.floor(secondsLeft % 60);
 
-export const getTimeLeftString = (timestampRelative) => {
-  if (timestampRelative < 0) timestampRelative = 0;
-  const daysLeft = Math.floor(timestampRelative / units.day);
-  timestampRelative -= daysLeft * units.day;
-
-  const hoursLeft = Math.floor(timestampRelative / units.hour);
-  timestampRelative -= hoursLeft * units.hour;
-
-  const minsLeft = Math.floor(timestampRelative / units.minute);
-  timestampRelative -= minsLeft * units.minute;
-
-  const secsLeft = Math.floor(timestampRelative / units.second);
-
-  return (
-    zeroPad(daysLeft, 2) +
-    ":" +
-    zeroPad(hoursLeft, 2) +
-    ":" +
-    zeroPad(minsLeft, 2) +
-    ":" +
-    zeroPad(secsLeft, 2) +
-    ""
-  );
+    // Display the countdown
+    return (
+      `${zeroPad(days, 2)}:${zeroPad(hours, 2)}:${zeroPad(minutes, 2)}:${zeroPad(seconds, 2)}`
+    );
+  }
+  return "Phase has ended...";
 };

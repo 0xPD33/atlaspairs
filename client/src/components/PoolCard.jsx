@@ -51,6 +51,11 @@ const PoolCard = ({
                 {poolNumber === 3 ? "Stake" : "Bet"}
               </button>
             )}
+            {stakedAmountForAddress > 0 && (
+              <div className="text-center">
+                You bet {stakedAmountForAddress} in vault {poolIdForAddress + 1}
+              </div>
+            )}
           </div>
           <div>
             {poolNumber === 1 || poolNumber === 3 ? (
