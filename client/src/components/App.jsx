@@ -10,7 +10,6 @@ import {
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Dapp from "./Dapp";
-import Home from "./Home";
 import Leaderboard from "./Leaderboard";
 
 import MouseFollower from "./MouseFollower";
@@ -24,11 +23,7 @@ import TokenAddress from "../data/TestToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
-const API_ENDPOINT =
-  import.meta.env.PROD === "true"
-    ? "/api/end_epoch"
-    : "http://localhost:3333/api/phase";
-
+const API_ENDPOINT = import.meta.env.VITE_SERVER_ENDPOINT + "/api/phase";
 const RPC_URL = import.meta.env.VITE_RPC_URL;
 const NETWORK = import.meta.env.VITE_NETWORK;
 const CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
@@ -301,15 +296,7 @@ function App() {
         <div className="m-0 p-0">
           <Routes>
             <Route
-              path="/"
-              element={
-                <>
-                  <Home />
-                  <Footer />
-                </>
-              }
-            />
-            <Route
+              index
               path="/vaults"
               element={
                 <>
@@ -328,7 +315,6 @@ function App() {
                     pools={pools}
                     stakedAmountForAddress={stakedAmountForAddress}
                     poolIdForAddress={poolIdForAddress}
-                    // requestEndEpoch={requestEndEpoch}
                   />
                 </>
               }
