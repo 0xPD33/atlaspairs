@@ -4,7 +4,7 @@ const fromWei = (num) => ethers.formatEther(num);
 const toWei = (num) => ethers.parseEther(num.toString());
 
 async function main() {
-  let poolMaster, udsc, token;
+  let poolMaster, udsc, token, presale;
   const [deployer] = await ethers.getSigners();
 
   console.log("Deploying contracts with the account:", deployer.address);
@@ -17,8 +17,8 @@ async function main() {
   );
 
   const PoolMaster = await ethers.getContractFactory("PoolMaster");
-  // const Erc20Usdc = await ethers.getContractFactory("Erc20Usdc");
   const Token = await ethers.getContractFactory("TestToken");
+  const Presale = await ethers.getContractFactory("Presale");
 
   token = await Token.deploy();
   await token.waitForDeployment();
@@ -28,24 +28,31 @@ async function main() {
 
   poolMaster = await PoolMaster.deploy();
   await poolMaster.waitForDeployment();
-  console.log("PoolMaster contract address", await poolMaster.getAddress());
-  saveFrontendFiles(await poolMaster.getAddress(), "PoolMaster");
+  const poolMasterAddress = await poolMaster.getAddress();
+  console.log("PoolMaster contract address", poolMasterAddress);
+  saveFrontendFiles(poolMasterAddress, "PoolMaster");
 
-  // const usdcAddress = usdc.address
-  // const usdcAddress = "0x5d7897579269F234015ba65743D9108F4AD5dB22" // sepolia
+  presale = await ethers.deployContract("Presale", [tokenAddress]);
+  await presale.waitForDeployment();
+  const presaleAddress = await presale.getAddress();
+  console.log("Presale contract address", presaleAddress);
+  saveFrontendFiles(presaleAddress, "Presale");
+
   // const usdcAddress = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"; // arbitrum
   const usdcAddress = "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"; // goerli
   // const tokenAddress = "0x4F69a31125a4bA6a51786181d5cC5a15E69df0c5"
 
-  const setTokenCall = await poolMaster.setTokenAddress(tokenAddress);
-  const setUsdcCall = await poolMaster.setUsdcAddress(usdcAddress);
-  const setTokenCallTx = await setTokenCall.getTransaction();
-  const setUsdcCallTx = await setUsdcCall.getTransaction();
+  const setTokenCall = await (
+    await poolMaster.setTokenAddress(tokenAddress)
+  ).wait();
+  const setUsdcCall = await (
+    await poolMaster.setUsdcAddress(usdcAddress)
+  ).wait();
 
   console.log(
     "Setters functions called: ",
-    setTokenCallTx.hash,
-    setUsdcCallTx.hash
+    setTokenCall.hash,
+    setUsdcCall.hash
   );
 
   console.log(

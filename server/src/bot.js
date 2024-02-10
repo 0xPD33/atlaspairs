@@ -36,7 +36,7 @@ async function startBot() {
 
 async function triggerPhaseUpdate() {
 	try {
-		await axios.post("http://localhost:3333/api/phase", {
+		await axios.post("http://127.0.0.1:3333/api/phase", {
 			phase: phase.toString(),
 			endTimestamp: endTimestamp.toString(),
 		});
@@ -47,7 +47,7 @@ async function triggerPhaseUpdate() {
 
 async function triggerServerEndpoint() {
 	try {
-		await axios.post("http://localhost:3333/api/end_epoch");
+		await axios.post("http://127.0.0.1:3333/api/end_epoch");
 	} catch (error) {
 		console.error("Failed to trigger server endpoint:", error);
 	}

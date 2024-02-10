@@ -10,16 +10,19 @@ const global = require("./global.js");
 dotenv.config();
 global.setup();
 
+const SERVER_IP = process.env.SERVER_IP;
 const limiter = rateLimit({
 	windowMs: 5 * 60 * 1000, // 5 minutes
-	max: 1000, // Limit each IP to 'x' amount of requests per `window`
+	max: 100, // Limit each IP to 'x' amount of requests per `window`
+	skip: (req, res) => req.ip === SERVER_IP,
 });
 
 const app = express();
+app.set('trust proxy', true); // Important if behind a reverse proxy
 app.use(limiter);
 app.use(helmet());
 app.use(cors());
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "5kb" }));
 
 const endEpochRoutes = require("./routes/end_epoch.js");
 const phaseRoutes = require("./routes/phase.js");

@@ -266,7 +266,7 @@ function App() {
   useEffect(() => {
     if (setupDone) {
       fetchPhase();
-      const phaseInterval = setInterval(fetchPhase, 10000);
+      const phaseInterval = setInterval(fetchPhase, 5000);
 
       return () => clearInterval(phaseInterval);
     }

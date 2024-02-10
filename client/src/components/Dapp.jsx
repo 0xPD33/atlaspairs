@@ -141,6 +141,7 @@ const Dapp = ({
                     type="range"
                     className="mt-4"
                     step={1}
+                    max={1000}
                     value={chosenAmount}
                     onChange={onChangeChosenAmount}
                   />
