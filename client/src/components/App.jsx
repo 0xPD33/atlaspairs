@@ -23,7 +23,9 @@ import TokenAddress from "../data/TestToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
-const API_ENDPOINT = import.meta.env.VITE_SERVER_ENDPOINT + "/api/phase";
+const API_ENDPOINT = "/api/phase";
+Axios.defaults.baseURL = import.meta.env.VITE_SERVER_ENDPOINT;
+
 const RPC_URL = import.meta.env.VITE_RPC_URL;
 const NETWORK = import.meta.env.VITE_NETWORK;
 const CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
@@ -63,7 +65,7 @@ function App() {
   const intervalRef = useRef();
   const poolMasterRef = useRef();
 
-  const initTimer = useEffect(() => {
+  useEffect(() => {
     // Clear any existing timer
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
