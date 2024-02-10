@@ -297,7 +297,7 @@ function App() {
           <Routes>
             <Route
               index
-              path="/vaults"
+              path="/"
               element={
                 <>
                   <Navbar

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocalSettingsStore } from "./localSettings";
+import { Link } from "react-router-dom";
 
 import { Icon } from "@iconify/react";
 import logo from "./assets/logo.png";
@@ -55,12 +56,12 @@ const Navbar = ({
             </a>
           </div>
           <div className="flex items-center gap-4">
-            <a className="navbar-link-item" href="vaults">
+            <Link className="navbar-link-item" to="/">
               Vaults
-            </a>
-            <a className="navbar-link-item" href="leaderboard">
+            </Link>
+            <Link className="navbar-link-item" to="/leaderboard">
               Leaderboard
-            </a>
+            </Link>
           </div>
         </div>
         <div className="relative flex-1 flex items-center justify-center">
@@ -100,8 +101,7 @@ const Navbar = ({
               >
                 {showMouseLight ? "Hide" : "Show"} Mouse Light
               </button>
-
-              <button className="nav-settings-menu-item">Disconnect</button>
+              {/* <button className="nav-settings-menu-item">Disconnect</button> */}
             </div>
           </div>
         </div>
