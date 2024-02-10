@@ -18,7 +18,12 @@ const limiter = rateLimit({
 });
 
 const app = express();
-app.set('trust proxy', true); // Important if behind a reverse proxy
+app.set('trust proxy', (ip) => {
+	if (ip === SERVER_IP || ip === '127.0.0.1') {
+		return true
+	}
+	return false
+});
 app.use(limiter);
 app.use(helmet());
 app.use(cors());
