@@ -23,7 +23,7 @@ import TokenAddress from "../data/TestToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
-const API_ENDPOINT = "/api/phase";
+const API_ENDPOINT = "/phase";
 Axios.defaults.baseURL = import.meta.env.VITE_SERVER_ENDPOINT;
 
 const RPC_URL = import.meta.env.VITE_RPC_URL;

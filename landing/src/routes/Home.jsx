@@ -27,7 +27,7 @@ const Home = () => {
               straightforward and enjoyable.
             </p>
             <div className="flex items-center gap-4">
-              <a className="cta-button" href="https://app.pairs.gg/vaults">
+              <a className="cta-button" href="https://app.pairs.gg/">
                 Enter App
               </a>
               <div className="md:hidden flex items-center justify-center gap-4">
