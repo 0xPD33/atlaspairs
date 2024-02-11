@@ -15,67 +15,72 @@ const PoolCard = ({
   clickBet,
   noWinner,
   stakedAmountForAddress,
+  stakedShareForAddress,
+  poolIdForAddress,
   noUsdc,
 }) => {
   return (
     <div className="card-body transition-all duration-150 ease-in-out">
-      {pool !== 0 && pool !== 1 && pool !== 2 ? (
-        <div className="relative h-full flex flex-col gap-2">
-          <div className="flex-1">
-            <p className="card-title">Vault {poolNumber}</p>
-            {!noWinner && (
-              <div className="token-display">
-                <p className="">{pool?.token}</p>
-                {/* <Icon width={24} icon="iconoir:question-mark-circle" /> */}
-              </div>
-            )}
-            <div className="token-info">
-              <p>Staked ATLAS: {pool?.tokenCount}</p>
-              {!noUsdc && <p>Staked USDC: {pool?.usdcCount}</p>}
+      <div className="relative h-full flex flex-col gap-2">
+        <div className="flex-1">
+          <p className="card-title">Vault {poolNumber}</p>
+          {!noWinner && (
+            <div className="token-display">
+              <p className="">{pool?.token}</p>
+              {/* <Icon width={24} icon="iconoir:question-mark-circle" /> */}
             </div>
-            {!noWinner &&
-            pool?.lastWinner &&
-            pool?.lastWinner !==
-              "0x0000000000000000000000000000000000000000" ? (
-              <div className="winner-info">
-                <p>Last Winner: {pool?.lastWinner}</p>
-              </div>
-            ) : null}
+          )}
+          <div className="token-info">
+            <p>Staked ATLAS: {pool?.tokenCount}</p>
+            {!noUsdc && <p>Staked USDC: {pool?.usdcCount}</p>}
           </div>
-          <div>
-            {phase === 0 && stakedAmountForAddress === 0 && (
-              <button
-                className="main-button text-lg px-4"
-                onClick={() => clickBet(poolNumber - 1)}
-              >
-                {poolNumber === 3 ? "Stake" : "Bet"}
-              </button>
-            )}
-            {stakedAmountForAddress > 0 && (
-              <div className="text-center">
-                You bet {stakedAmountForAddress} in vault {poolIdForAddress + 1}
-              </div>
-            )}
-          </div>
-          <div>
-            {poolNumber === 1 || poolNumber === 3 ? (
-              <div className="w-72 absolute -z-10 -bottom-32 left-[50%] translate-x-[-50%]">
-                <img
-                  className={poolNumber === 3 ? "-scale-x-[1]" : ""}
-                  src={holdingPepe}
-                  alt=""
-                />
-              </div>
-            ) : (
-              <div className="w-56 absolute -z-10 -bottom-32 left-[50%] translate-x-[-50%]">
-                <img src={holdingBallsPepe} alt="" />
-              </div>
-            )}
-          </div>
+          {!noWinner &&
+          pool?.lastWinner &&
+          pool?.lastWinner !== "0x0000000000000000000000000000000000000000" ? (
+            <div className="winner-info">
+              <p>Last Winner: {pool?.lastWinner}</p>
+            </div>
+          ) : null}
         </div>
-      ) : (
-        <span className="text-xl animate-pulse p-8">Loading...</span>
-      )}
+        <div>
+          {phase === 0 && Number(stakedAmountForAddress) === 0 && (
+            <button
+              className="main-button text-lg px-4"
+              onClick={() => clickBet(poolNumber - 1)}
+            >
+              {poolNumber === 3 ? "Stake" : "Bet"}
+            </button>
+          )}
+          {Number(stakedAmountForAddress) > 0 &&
+            poolNumber - 1 === poolIdForAddress && (
+              <div className="text-center bet-info">
+                <p>
+                  You {poolNumber === 3 ? "staked" : "bet"}{" "}
+                  {stakedAmountForAddress} $ATLAS in Vault{" "}
+                  {poolIdForAddress + 1}
+                </p>
+                <p className="text-sm">
+                  Your share is {stakedShareForAddress}%
+                </p>
+              </div>
+            )}
+        </div>
+        <div>
+          {poolNumber === 1 || poolNumber === 3 ? (
+            <div className="w-72 absolute -z-10 -bottom-32 left-[50%] translate-x-[-50%]">
+              <img
+                className={poolNumber === 3 ? "-scale-x-[1]" : ""}
+                src={holdingPepe}
+                alt=""
+              />
+            </div>
+          ) : (
+            <div className="w-56 absolute -z-10 -bottom-32 left-[50%] translate-x-[-50%]">
+              <img src={holdingBallsPepe} alt="" />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

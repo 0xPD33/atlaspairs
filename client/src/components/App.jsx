@@ -196,34 +196,45 @@ function App() {
     setPools(poolsTemp);
   };
 
-  const fetchContractData = useCallback(async () => {
+  const fetchAccountSpecificData = useCallback(async () => {
     if (
-      contracts.multicallProvider === null ||
+      account === null ||
+      !contracts.multicallProvider ||
       !contracts.poolMasterMulticall
     ) {
+      console.log(
+        account,
+        contracts.multicallProvider,
+        contracts.poolMasterMulticall
+      );
+      console.log(
+        "Account specific data cannot be fetched without all required dependencies."
+      );
+      return;
+    }
+
+    const poolMasterCalls = [
+      contracts.poolMasterMulticall.getStakedTokensForAddress(account),
+      contracts.poolMasterMulticall.getPoolIdForAddress(account),
+    ];
+
+    try {
+      const results = await contracts.multicallProvider.all(poolMasterCalls);
+      setStakedAmountForAddress(fromWei(results[0]));
+      setPoolIdForAddress(parseInt(results[1], 10));
+    } catch (error) {
+      console.error("Error fetching account-specific data:", error);
+    }
+  }, [account, contracts.multicallProvider, contracts.poolMasterMulticall]);
+
+  const fetchContractData = useCallback(async () => {
+    if (!contracts.multicallProvider || !contracts.poolMasterMulticall) {
       console.log("multicallProvider is null");
       return;
     }
 
-    if (account !== null) {
-      const poolMasterCalls = [
-        contracts.poolMasterMulticall.getStakedTokensForAddress(account),
-        contracts.poolMasterMulticall.getPoolIdForAddress(account),
-      ];
-      try {
-        const results = await contracts.multicallProvider.all(poolMasterCalls);
-        if (account !== null) {
-          setStakedAmountForAddress(fromWei(results[0]));
-          setPoolIdForAddress(parseInt(results[1], 10));
-        }
-      } catch (error) {
-        console.error("Error fetching contract data:", error);
-      }
-    }
-
     await loadPoolData();
   }, [
-    account,
     contracts.multicallProvider,
     contracts.poolMasterMulticall,
     loadPoolData,
@@ -277,6 +288,28 @@ function App() {
       return () => clearInterval(contractDataInterval);
     }
   }, [setupDone, contracts.multicallProvider]);
+
+  useEffect(() => {
+    if (
+      setupDone &&
+      contracts.multicallProvider &&
+      contracts.poolMasterMulticall &&
+      account !== null
+    ) {
+      fetchAccountSpecificData();
+
+      const accountSpecificDataInterval = setInterval(
+        fetchAccountSpecificData,
+        15000
+      );
+      return () => clearInterval(accountSpecificDataInterval);
+    }
+  }, [
+    setupDone,
+    contracts.multicallProvider,
+    contracts.poolMasterMulticall,
+    account,
+  ]);
 
   const closePopup = () => {
     setPopup(0);

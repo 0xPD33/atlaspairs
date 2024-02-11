@@ -23,6 +23,9 @@ const Dapp = ({
   const [chosenAmount, setChosenAmount] = useState(100);
   const [chosenUsdc, setChosenUsdc] = useState(false);
 
+  const [userTokenBalance, setUserTokenBalance] = useState(0);
+  const [stakedShareForAddress, setStakedShareForAddress] = useState(0);
+
   const onChangeChosenAmount = (e) => {
     setChosenAmount(parseInt(e.target.value, 10));
   };
@@ -43,6 +46,27 @@ const Dapp = ({
   const toggleTokenSwitch = () => {
     setChosenUsdc(!chosenUsdc);
   };
+
+  const checkBalance = async () => {
+    const tokenToCheck = chosenUsdc ? usdc : token;
+    const balance = await tokenToCheck.balanceOf(account);
+    setUserTokenBalance(balance);
+    // console.log(
+    //   "userTokenBalance",
+    //   ethers.utils.formatUnits(userTokenBalance, 18)
+    // );
+    calculateShare();
+  };
+
+  const calculateShare = async () => {
+    const stakedInPoolPercentage =
+      (stakedAmountForAddress / pools[chosenPool].tokenCount) * 100;
+    setStakedShareForAddress(stakedInPoolPercentage.toFixed(2));
+  };
+
+  useEffect(() => {
+    checkBalance();
+  }, []);
 
   const stake = async () => {
     const amount = chosenUsdc
@@ -66,12 +90,12 @@ const Dapp = ({
   };
 
   return (
-    <div className="h-full py-8 flex flex-col items-center">
-      <div className="pt-16 flex justify-center gap-12">
+    <div className="h-full py-8 px-4 lg:px-0 flex flex-col items-center">
+      <div className="pt-0 lg:pt-16 flex flex-col lg:flex-row justify-center gap-24 lg:gap-12">
         {pools.map((pool, index) => (
           <div
             key={index}
-            className="lg:min-w-[280px] lg:min-h-[360px] xl:min-w-[360px] xl:min-h-[440px]"
+            className="min-w-full min-h-full lg:min-w-[280px] lg:min-h-[360px] xl:min-w-[360px] xl:min-h-[440px]"
           >
             <PoolCard
               key={index + 1}
@@ -80,6 +104,8 @@ const Dapp = ({
               phase={phase}
               clickBet={clickBet}
               stakedAmountForAddress={stakedAmountForAddress}
+              stakedShareForAddress={stakedShareForAddress}
+              poolIdForAddress={poolIdForAddress}
               noWinner={index === 2}
               noUsdc={index === 2}
             />
@@ -99,7 +125,7 @@ const Dapp = ({
           </p>
         </div>
       )}
-      <div className="p-2 mt-16 rounded-md bg-black/50 w-1/4 flex flex-col items-center">
+      <div className="p-2 mt-8 lg:mt-16 rounded-md bg-black/50 w-full lg:w-1/4 flex flex-col items-center">
         <p>Testnet Faucet</p>
         <div className="gap-4 flex py-2">
           <button onClick={claim} className="main-button">
@@ -135,7 +161,7 @@ const Dapp = ({
                   <label className="block mb-2">Amount:</label>
                   <input
                     type="number"
-                    className="w-full p-1 rounded-md text-white"
+                    className="w-full p-1 rounded-md text-white bg-[#6d6d70]"
                     value={chosenAmount}
                     onChange={onChangeChosenAmount}
                   />
