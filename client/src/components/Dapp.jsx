@@ -47,16 +47,16 @@ const Dapp = ({
     setChosenUsdc(!chosenUsdc);
   };
 
-  const checkBalance = async () => {
-    const tokenToCheck = chosenUsdc ? usdc : token;
-    const balance = await tokenToCheck.balanceOf(account);
-    setUserTokenBalance(balance);
-    // console.log(
-    //   "userTokenBalance",
-    //   ethers.utils.formatUnits(userTokenBalance, 18)
-    // );
-    calculateShare();
-  };
+  // const checkBalance = async () => {
+  //   const tokenToCheck = chosenUsdc ? usdc : token;
+  //   const balance = await tokenToCheck.balanceOf(account);
+  //   setUserTokenBalance(balance);
+  //   // console.log(
+  //   //   "userTokenBalance",
+  //   //   ethers.utils.formatUnits(userTokenBalance, 18)
+  //   // );
+  //   calculateShare();
+  // };
 
   const calculateShare = async () => {
     const stakedInPoolPercentage =
@@ -65,7 +65,8 @@ const Dapp = ({
   };
 
   useEffect(() => {
-    checkBalance();
+    //checkBalance()
+    calculateShare();
   }, []);
 
   const stake = async () => {
