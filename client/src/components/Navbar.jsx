@@ -45,13 +45,28 @@ const Navbar = ({
             Quit App
           </a>
           <div className="flex-1 flex justify-center gap-4">
-            <a className="hover:opacity-80" href="https://twitter.com/">
+            <a
+              className="hover:opacity-80"
+              href="https://twitter.com/atlaspairs"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               <Icon width={24} icon="bi:twitter" />
             </a>
-            <a className="hover:opacity-80" href="https://t.me/">
-              <Icon width={24} icon="bi:telegram" />
+            <a
+              className="hover:opacity-80"
+              href="https://discord.gg/kXSvgXbZxq"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Icon width={24} icon="bi:discord" />
             </a>
-            <a className="hover:opacity-80" href="https://github.com/">
+            <a
+              className="hover:opacity-80"
+              href="https://github.com/0xPD33/atlaspairs"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               <Icon width={24} icon="bi:github" />
             </a>
           </div>

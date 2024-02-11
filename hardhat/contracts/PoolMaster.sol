@@ -16,8 +16,8 @@ contract PoolMaster is Ownable, ReentrancyGuard {
     // uint256 public bettingPhaseDuration = 8 * 60 * 60; // 8 Hours
     // uint256 public battlingPhaseDuration = 24 * 60 * 60; // 24 Hours
 
-    uint256 public bettingPhaseDuration = 2 * 60; // 2 minutes (testing)
-    uint256 public battlingPhaseDuration = 4 * 60; // 4 minutes (testing)
+    uint256 public bettingPhaseDuration = 15 * 60; // 2 minutes (testing)
+    uint256 public battlingPhaseDuration = 30 * 60; // 4 minutes (testing)
 
     uint256 public loserTokensPercent = 1250; // 12.50 %
     uint256 public winnerTokensPercent = 8000; // 10.00 % : 10/12.5 = 80%

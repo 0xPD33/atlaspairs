@@ -113,7 +113,9 @@ const Dapp = ({
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div className="bg-[#8a8a8e] text-white p-6 rounded-lg shadow-lg">
                 <h1 className="text-2xl font-bold mb-4">
-                  Place a Bet in Vault {chosenPool + 1}
+                  {chosenPool === 2
+                    ? "Stake $ATLAS"
+                    : `Place a Bet in Vault ${chosenPool + 1}`}
                 </h1>
                 {chosenPool !== 2 && (
                   <div className="flex justify-center items-center my-2">
@@ -154,7 +156,7 @@ const Dapp = ({
                     Cancel
                   </button>
                   <button className="main-button" onClick={stake}>
-                    Place Bet
+                    {chosenPool === 2 ? "Stake" : "Place Bet"}
                   </button>
                 </div>
               </div>

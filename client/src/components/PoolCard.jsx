@@ -25,8 +25,8 @@ const PoolCard = ({
             <p className="card-title">Vault {poolNumber}</p>
             {!noWinner && (
               <div className="token-display">
-                <p className="mr-1">{pool?.token}</p>
-                <Icon width={24} icon="iconoir:question-mark-circle" />
+                <p className="">{pool?.token}</p>
+                {/* <Icon width={24} icon="iconoir:question-mark-circle" /> */}
               </div>
             )}
             <div className="token-info">

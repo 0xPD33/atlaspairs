@@ -32,11 +32,11 @@ async function main() {
   console.log("PoolMaster contract address", poolMasterAddress);
   saveFrontendFiles(poolMasterAddress, "PoolMaster");
 
-  presale = await ethers.deployContract("Presale", [tokenAddress]);
-  await presale.waitForDeployment();
-  const presaleAddress = await presale.getAddress();
-  console.log("Presale contract address", presaleAddress);
-  saveFrontendFiles(presaleAddress, "Presale");
+  // presale = await ethers.deployContract("Presale", [tokenAddress]);
+  // await presale.waitForDeployment();
+  // const presaleAddress = await presale.getAddress();
+  // console.log("Presale contract address", presaleAddress);
+  // saveFrontendFiles(presaleAddress, "Presale");
 
   // const usdcAddress = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"; // arbitrum
   const usdcAddress = "0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557"; // goerli
