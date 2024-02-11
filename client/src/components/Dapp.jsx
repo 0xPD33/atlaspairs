@@ -61,7 +61,8 @@ const Dapp = ({
   const calculateShare = async () => {
     if (!account || !stakedAmountForAddress) return;
     const stakedInPoolPercentage =
-      (stakedAmountForAddress / pools[chosenPool].tokenCount) * 100;
+      (stakedAmountForAddress / pools[Number(poolIdForAddress)].tokenCount) *
+      100;
     setStakedShareForAddress(Number(stakedInPoolPercentage.toFixed(2)));
   };
 
