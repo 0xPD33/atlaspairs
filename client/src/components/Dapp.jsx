@@ -50,7 +50,6 @@ const Dapp = ({
 
   const checkBalance = async () => {
     if (!account || !token || !usdc) return;
-    console.log(token);
 
     const tokenToCheck = chosenUsdc ? usdc : token;
     const balance = await tokenToCheck.balanceOf(account);

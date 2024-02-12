@@ -165,9 +165,18 @@ contract PoolMaster is Ownable, ReentrancyGuard {
         pools[_poolLoserId].lastWinnerSymbol = "";
         pools[_poolWinnerId].lastWinnerSymbol = pools[_poolWinnerId].symbol;
 
+        // Return if no losers because that would mean there are no winners and pools are not filled
+        if (_poolLoserLength == 0) {
+            delete stakersPool1;
+            delete stakersPool2;
+            delete stakersPool3;
+
+            return;
+        }
+
         // Refund staked amount to losers since there are no winners to distribute to
         if (_poolWinnerLength == 0) {
-            for (uint256 i = 0; i < _poolLoserLength; i++) {
+            for (uint256 i = 0; i < _poolLoserLength; ) {
                 Staker memory _staker = _poolLoserId == 0
                     ? stakersPool1[i]
                     : stakersPool2[i];
@@ -184,7 +193,16 @@ contract PoolMaster is Ownable, ReentrancyGuard {
                     address(0),
                     false
                 );
+
+                unchecked {
+                    ++i;
+                }
             }
+
+            delete stakersPool1;
+            delete stakersPool2;
+            delete stakersPool3;
+
             return;
         }
 
