@@ -24,9 +24,13 @@ let release;
 const semaphore = new Mutex();
 let isEpochOperationInProgress = false;
 
+// const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
+// 	name: "goerli",
+// 	chainId: 5,
+// });
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL, {
-	name: "goerli",
-	chainId: 5,
+	name: "arbitrum",
+	chainId: 42161,
 });
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
@@ -54,7 +58,7 @@ router.post("/", async (req, res) => {
 		console.log("Starting epoch operation...");
 
 		console.log("Getting current phase...");
-		await delay(15000);
+		await delay(5000);
 
 		const phase = parseInt(await poolMaster.getPhase());
 		console.log("phase", phase);

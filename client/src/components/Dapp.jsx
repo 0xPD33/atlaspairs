@@ -150,14 +150,14 @@ const Dapp = ({
           </p>
         </div>
       )}
-      <div className="p-2 mt-8 lg:mt-16 rounded-md bg-black/50 w-full lg:w-1/4 flex flex-col items-center">
+      {/* <div className="p-2 mt-8 lg:mt-16 rounded-md bg-black/50 w-full lg:w-1/4 flex flex-col items-center">
         <p>Testnet Faucet</p>
         <div className="gap-4 flex py-2">
           <button onClick={claim} className="main-button">
             Claim $ATLAS
           </button>
         </div>
-      </div>
+      </div> */}
       {showPlaceBetPopup && (
         <>
           <div className="fixed inset-0 bg-black/30 z-50">
@@ -169,17 +169,28 @@ const Dapp = ({
                     : `Place a Bet in Vault ${chosenPool + 1}`}
                 </h1>
                 {chosenPool !== 2 && (
-                  <div className="flex justify-center items-center my-2">
-                    <label htmlFor="custom-switch" className="mr-2">
-                      {chosenUsdc ? "USDC" : "$ATLAS"}
-                    </label>
-                    {/* <input
-                      type="checkbox"
-                      id="custom-switch"
-                      className="toggle toggle-primary"
-                      checked={!chosenUsdc}
-                      onChange={toggleTokenSwitch}
-                    /> */}
+                  <div className="flex flex-col items-center">
+                    <p>Chose asset:</p>
+                    <div className="flex justify-center items-center my-2 gap-4">
+                      <button
+                        className={`main-button ${
+                          !chosenUsdc ? "bg-[#2d7fb3]" : ""
+                        }`}
+                        disabled={!chosenUsdc}
+                        onClick={() => setChosenUsdc(false)}
+                      >
+                        ATLAS
+                      </button>
+                      <button
+                        className={`main-button ${
+                          chosenUsdc ? "bg-[#2d7fb3]" : ""
+                        }`}
+                        disabled={chosenUsdc}
+                        onClick={() => setChosenUsdc(true)}
+                      >
+                        USDC
+                      </button>
+                    </div>
                   </div>
                 )}
                 <div className="my-4">

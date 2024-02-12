@@ -18,8 +18,8 @@ import Axios from "axios";
 
 import UsdcAbi from "../data/Erc20Usdc.json";
 import UsdcAddress from "../data/Erc20Usdc-address.json";
-import TokenAbi from "../data/TestToken.json";
-import TokenAddress from "../data/TestToken-address.json";
+import TokenAbi from "../data/AtlasToken.json";
+import TokenAddress from "../data/AtlasToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
@@ -102,12 +102,12 @@ function App() {
       method: "net_version",
     });
 
-    // If not connected to the Goerli testnet, ask to switch
-    if (networkId !== "5") {
+    // If not connected to Arbitrum mainnet, ask to switch
+    if (networkId !== CHAIN_ID) {
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x5" }],
+          params: [{ chainId: "0xA4B1" }],
         });
       } catch (switchError) {
         console.error(switchError);

@@ -62,7 +62,7 @@ contract PoolMaster is Ownable, ReentrancyGuard {
         bool isUsdc;
     }
 
-    constructor() {
+    constructor(address initialOwner) Ownable(initialOwner) {
         pools.push(Pool("", "", "", 0, 0, 0, 0));
         pools.push(Pool("", "", "", 0, 0, 0, 0));
         pools.push(Pool("", "", "", 0, 0, 0, 0));
