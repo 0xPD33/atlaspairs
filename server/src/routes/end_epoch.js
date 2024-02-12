@@ -125,8 +125,8 @@ router.post("/", async (req, res) => {
 			console.log("Starting new epoch...");
 			const randomIndex1 = getRandom32Int() % tokenList.length;
 			const randomIndex2 = getRandom32Int() % tokenList.length;
-			const nextToken1Symbol = tokenList[randomIndex1].symbol;
-			const nextToken2Symbol = tokenList[randomIndex2].symbol;
+			const nextToken1Symbol = tokenList[randomIndex1];
+			const nextToken2Symbol = tokenList[randomIndex2];
 			const token1 = await getTokenBySymbol(nextToken1Symbol);
 			const token2 = await getTokenBySymbol(nextToken2Symbol);
 			console.log("nextToken1Symbol", nextToken1Symbol);

@@ -16,8 +16,8 @@ contract PoolMaster is Ownable, ReentrancyGuard {
     // uint256 public bettingPhaseDuration = 8 * 60 * 60; // 8 Hours
     // uint256 public battlingPhaseDuration = 24 * 60 * 60; // 24 Hours
 
-    uint256 public bettingPhaseDuration = 15 * 60; // 2 minutes (testing)
-    uint256 public battlingPhaseDuration = 30 * 60; // 4 minutes (testing)
+    uint256 public bettingPhaseDuration = 5 * 60;
+    uint256 public battlingPhaseDuration = 10 * 60;
 
     uint256 public loserTokensPercent = 1250; // 12.50 %
     uint256 public winnerTokensPercent = 8000; // 10.00 % : 10/12.5 = 80%
@@ -164,6 +164,29 @@ contract PoolMaster is Ownable, ReentrancyGuard {
 
         pools[_poolLoserId].lastWinnerSymbol = "";
         pools[_poolWinnerId].lastWinnerSymbol = pools[_poolWinnerId].symbol;
+
+        // Refund staked amount to losers since there are no winners to distribute to
+        if (_poolWinnerLength == 0) {
+            for (uint256 i = 0; i < _poolLoserLength; i++) {
+                Staker memory _staker = _poolLoserId == 0
+                    ? stakersPool1[i]
+                    : stakersPool2[i];
+
+                if (_staker.isUsdc) {
+                    usdc.transfer(_staker.stakerAddress, _staker.amount);
+                } else {
+                    token.transfer(_staker.stakerAddress, _staker.amount);
+                }
+
+                stakersMapping[_staker.stakerAddress] = Staker(
+                    0,
+                    0,
+                    address(0),
+                    false
+                );
+            }
+            return;
+        }
 
         uint256 _tokenLostAmount = 0;
         uint256 _usdcLostAmount = 0;

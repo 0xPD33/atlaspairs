@@ -24,6 +24,7 @@ const Dapp = ({
   const [chosenUsdc, setChosenUsdc] = useState(false);
 
   const [userTokenBalance, setUserTokenBalance] = useState(0);
+  const [userUsdcBalance, setUserUsdcBalance] = useState(0);
   const [stakedShareForAddress, setStakedShareForAddress] = useState(0);
 
   const onChangeChosenAmount = (e) => {
@@ -47,29 +48,51 @@ const Dapp = ({
     setChosenUsdc(!chosenUsdc);
   };
 
-  // const checkBalance = async () => {
-  //   const tokenToCheck = chosenUsdc ? usdc : token;
-  //   const balance = await tokenToCheck.balanceOf(account);
-  //   setUserTokenBalance(balance);
-  //   // console.log(
-  //   //   "userTokenBalance",
-  //   //   ethers.utils.formatUnits(userTokenBalance, 18)
-  //   // );
-  //   calculateShare();
-  // };
+  const checkBalance = async () => {
+    if (!account || !token || !usdc) return;
+    console.log(token);
+
+    const tokenToCheck = chosenUsdc ? usdc : token;
+    const balance = await tokenToCheck.balanceOf(account);
+    setUserTokenBalance(ethers.utils.formatUnits(balance, 18));
+  };
 
   const calculateShare = async () => {
     if (!account || !stakedAmountForAddress) return;
+    if (poolIdForAddress === undefined || !pools[Number(poolIdForAddress)])
+      return;
+
+    const poolTokenCount = pools[Number(poolIdForAddress)].tokenCount;
+
+    if (!poolTokenCount || poolTokenCount === 0) {
+      setStakedShareForAddress(0);
+      return;
+    }
+
+    const pool = pools[Number(poolIdForAddress)];
+    if (!pool || pool.tokenCount === 0) {
+      console.warn("Invalid pool data or token count is zero.");
+      setStakedShareForAddress(0);
+      return;
+    }
+
     const stakedInPoolPercentage =
-      (stakedAmountForAddress / pools[Number(poolIdForAddress)].tokenCount) *
-      100;
-    setStakedShareForAddress(Number(stakedInPoolPercentage.toFixed(2)));
+      (stakedAmountForAddress / pool.tokenCount) * 100;
+
+    if (!isNaN(stakedInPoolPercentage)) {
+      setStakedShareForAddress(Number(stakedInPoolPercentage.toFixed(2)));
+    } else {
+      setStakedShareForAddress(0);
+    }
   };
 
   useEffect(() => {
-    //checkBalance()
     calculateShare();
-  }, [account, stakedAmountForAddress]);
+  }, [account, stakedAmountForAddress, pools, poolIdForAddress]);
+
+  useEffect(() => {
+    checkBalance();
+  }, [account, token, usdc]);
 
   const stake = async () => {
     const amount = chosenUsdc
@@ -166,13 +189,14 @@ const Dapp = ({
                     type="number"
                     className="w-full p-1 rounded-md text-white bg-[#6d6d70]"
                     value={chosenAmount}
+                    max={userTokenBalance}
                     onChange={onChangeChosenAmount}
                   />
                   <input
                     type="range"
                     className="mt-4"
                     step={1}
-                    max={1000}
+                    max={userTokenBalance}
                     value={chosenAmount}
                     onChange={onChangeChosenAmount}
                   />
