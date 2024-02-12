@@ -165,47 +165,6 @@ contract PoolMaster is Ownable, ReentrancyGuard {
         pools[_poolLoserId].lastWinnerSymbol = "";
         pools[_poolWinnerId].lastWinnerSymbol = pools[_poolWinnerId].symbol;
 
-        // Return if no winners or losers
-        if (_poolLoserLength == 0 && _poolWinnerLength == 0) {
-            delete stakersPool1;
-            delete stakersPool2;
-            delete stakersPool3;
-
-            return;
-        }
-
-        // Refund staked amount to losers since there are no winners to distribute to
-        if (_poolWinnerLength == 0) {
-            for (uint256 i = 0; i < _poolLoserLength; ) {
-                Staker memory _staker = _poolLoserId == 0
-                    ? stakersPool1[i]
-                    : stakersPool2[i];
-
-                if (_staker.isUsdc) {
-                    usdc.transfer(_staker.stakerAddress, _staker.amount);
-                } else {
-                    token.transfer(_staker.stakerAddress, _staker.amount);
-                }
-
-                stakersMapping[_staker.stakerAddress] = Staker(
-                    0,
-                    0,
-                    address(0),
-                    false
-                );
-
-                unchecked {
-                    ++i;
-                }
-            }
-
-            delete stakersPool1;
-            delete stakersPool2;
-            delete stakersPool3;
-
-            return;
-        }
-
         uint256 _tokenLostAmount = 0;
         uint256 _usdcLostAmount = 0;
 
