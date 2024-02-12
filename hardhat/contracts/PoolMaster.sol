@@ -165,8 +165,8 @@ contract PoolMaster is Ownable, ReentrancyGuard {
         pools[_poolLoserId].lastWinnerSymbol = "";
         pools[_poolWinnerId].lastWinnerSymbol = pools[_poolWinnerId].symbol;
 
-        // Return if no losers because that would mean there are no winners and pools are not filled
-        if (_poolLoserLength == 0) {
+        // Return if no winners or losers
+        if (_poolLoserLength == 0 && _poolWinnerLength == 0) {
             delete stakersPool1;
             delete stakersPool2;
             delete stakersPool3;
