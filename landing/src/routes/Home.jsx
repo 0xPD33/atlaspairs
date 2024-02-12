@@ -74,11 +74,11 @@ const Home = () => {
                 </div>
                 <div>
                   <p>Number of epochs</p>
-                  <p className="protocol-stat-value">$???</p>
+                  <p className="protocol-stat-value">???</p>
                 </div>
                 <div>
                   <p>Staked $ATLAS</p>
-                  <p className="protocol-stat-value">$???</p>
+                  <p className="protocol-stat-value">???</p>
                 </div>
               </div>
             </div>

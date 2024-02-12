@@ -87,7 +87,7 @@ const Nav = () => {
         </div>
       </nav>
       <div className="w-1/2 sm:w-1/3 flex items-center justify-end gap-4">
-        <a className="cta-button" href="https://app.pairs.gg/vaults">
+        <a className="cta-button" href="https://app.pairs.gg/">
           Enter App
         </a>
       </div>
