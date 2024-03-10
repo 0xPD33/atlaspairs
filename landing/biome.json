@@ -1,0 +1,17 @@
+{
+	"linter": {
+		"enabled": true,
+		"ignore": ["./node_modules/"]
+	},
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": true
+	},
+	"javascript": {
+		"formatter": {
+			"semicolons": "always",
+			"indentStyle": "space",
+			"indentWidth": 2
+		}
+	}
+}
