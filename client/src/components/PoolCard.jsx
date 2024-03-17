@@ -18,19 +18,78 @@ const PoolCard = ({
   stakedShareForAddress,
   poolIdForAddress,
   noUsdc,
+  currentPerformance,
 }) => {
   return (
     <div className="card-body transition-all duration-150 ease-in-out">
       <div className="relative h-full flex flex-col gap-2">
-        <div className="flex-1">
+        <div>
           <p className="card-title">Vault {poolNumber}</p>
           {!noWinner && (
-            <div className="token-display">
-              <p className="">{pool?.token}</p>
-              {/* <Icon width={24} icon="iconoir:question-mark-circle" /> */}
+            <div className="token-container mb-4">
+              <div className="token-display">
+                <p className="">{pool?.token}</p>
+              </div>
+              {currentPerformance?.token1 && currentPerformance?.token2 && (
+                <div className="token-performance mt-0.5">
+                  <p>
+                    Initial:
+                    <span className="ml-1 text-gray-300">
+                      {pool?.token === currentPerformance.token1.symbol
+                        ? Number(
+                            currentPerformance.token1.initialPrice,
+                          ).toFixed(4)
+                        : Number(
+                            currentPerformance.token2.initialPrice,
+                          ).toFixed(4)}
+                      $
+                    </span>
+                  </p>
+                  <p className="">
+                    Current:
+                    <span className="ml-1 text-gray-300">
+                      {pool?.token === currentPerformance.token1.symbol
+                        ? Number(
+                            currentPerformance.token1.currentPrice,
+                          ).toFixed(4)
+                        : Number(
+                            currentPerformance.token2.currentPrice,
+                          ).toFixed(4)}
+                      $
+                    </span>
+                  </p>
+                  <p>
+                    Change:
+                    <span
+                      className={`ml-1 ${
+                        pool?.token === currentPerformance.token1.symbol
+                          ? Number(currentPerformance.token1.performance) > 0
+                            ? "text-green-400"
+                            : Number(currentPerformance.token1.performance) < 0
+                              ? "text-red-400"
+                              : "text-gray-400"
+                          : Number(currentPerformance.token2.performance) > 0
+                            ? "text-green-400"
+                            : Number(currentPerformance.token2.performance) < 0
+                              ? "text-red-400"
+                              : "text-gray-400"
+                      }`}
+                    >
+                      {pool?.token === currentPerformance.token1.symbol
+                        ? Number(currentPerformance.token1.performance).toFixed(
+                            2,
+                          )
+                        : Number(currentPerformance.token2.performance).toFixed(
+                            2,
+                          )}
+                      %
+                    </span>
+                  </p>
+                </div>
+              )}
             </div>
           )}
-          <div className="token-info">
+          <div className="token-info mb-4">
             <p>Staked ATLAS: {pool?.tokenCount}</p>
             {!noUsdc && <p>Staked USDC: {pool?.usdcCount}</p>}
           </div>

@@ -17,6 +17,7 @@ const Dapp = ({
   pools,
   stakedAmountForAddress,
   poolIdForAddress,
+  currentPerformance,
 }) => {
   const [showPlaceBetPopup, setShowPlaceBetPopup] = useState(false);
   const [chosenPool, setChosenPool] = useState(0);
@@ -28,13 +29,13 @@ const Dapp = ({
   const [stakedShareForAddress, setStakedShareForAddress] = useState(0);
 
   const onChangeChosenAmount = (e) => {
-    setChosenAmount(parseInt(e.target.value, 10));
+    setChosenAmount(Number.parseInt(e.target.value, 10));
   };
 
   const phaseIdToText = () => {
     if (phase === 2) return "Epoch Ended";
-    if (phase === 1) return "Battling Phase";
-    return "Betting Phase";
+    if (phase === 1) return "Battle Phase";
+    return "Bet Phase";
   };
 
   const clickBet = (poolId) => {
@@ -78,7 +79,7 @@ const Dapp = ({
     const stakedInPoolPercentage =
       (stakedAmountForAddress / pool.tokenCount) * 100;
 
-    if (!isNaN(stakedInPoolPercentage)) {
+    if (!Number.isNaN(stakedInPoolPercentage)) {
       setStakedShareForAddress(Number(stakedInPoolPercentage.toFixed(2)));
     } else {
       setStakedShareForAddress(0);
@@ -102,8 +103,9 @@ const Dapp = ({
     setShowPlaceBetPopup(false);
 
     if (
-      parseInt(await tokenToApprove.allowance(account, poolMaster.address)) <
-      amount
+      Number.parseInt(
+        await tokenToApprove.allowance(account, poolMaster.address),
+      ) < amount
     )
       await (await tokenToApprove.approve(poolMaster.address, amount)).wait();
 
@@ -133,23 +135,42 @@ const Dapp = ({
               poolIdForAddress={poolIdForAddress}
               noWinner={index === 2}
               noUsdc={index === 2}
+              currentPerformance={currentPerformance}
             />
           </div>
         ))}
       </div>
       {pools != null && pools.length > 0 && (
-        <div className="text-shadow mt-32 text-center">
-          <p className="text-2xl">
+        <div className="text-shadow mt-40 text-center">
+          <p className="text-3xl">
             Current phase:{" "}
             <span className="animate-pulse">{phaseIdToText()}</span>
           </p>
-          <p className="mt-2">
+          <p className="mt-2 text-xl">
             {phase !== 2
               ? getTimeLeftString(timeleft)
               : "Transitioning to the next epoch. This may take a few minutes..."}
           </p>
         </div>
       )}
+      <div className="text-shadow mt-16 text-center flex flex-col items-center gap-2 max-w-2xl">
+        <h1 className="text-3xl">Tutorial</h1>
+        <h2 className="text-2xl">Vaults Explained</h2>
+        <p>
+          In Vaults 1 and 2, stake tokens in 6-hour windows before a 24-hour
+          performance battle begins, with each pool getting a random top-100
+          token. If your pool's token wins the performance phase, you gain a
+          share of the losing pool's stakes; if it doesn't, you lose a portion
+          of your stake. A portion of all stakes goes to Vault 3 stakers, with a
+          small amount burned.
+        </p>
+        <p>
+          Vault 3 is for those who prefer steady, passive income without direct
+          competition. By staking $ATLAS in Vault 3, you receive fees from the
+          protocol's activity across all pools every epoch, without risking your
+          capital in the performance battles.
+        </p>
+      </div>
       {/* <div className="p-2 mt-8 lg:mt-16 rounded-md bg-black/50 w-full lg:w-1/4 flex flex-col items-center">
         <p>Testnet Faucet</p>
         <div className="gap-4 flex py-2">

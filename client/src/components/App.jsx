@@ -23,7 +23,7 @@ import TokenAddress from "../data/AtlasToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
-const API_ENDPOINT = "/api/phase";
+const API_ENDPOINT = "/api/";
 Axios.defaults.baseURL = import.meta.env.VITE_SERVER_ENDPOINT;
 
 const RPC_URL = import.meta.env.VITE_RPC_URL;
@@ -52,6 +52,7 @@ function App() {
   });
 
   const [currentPhase, setCurrentPhase] = useState(null);
+  const [currentPerformance, setCurrentPerformance] = useState({});
   const [stakedAmountForAddress, setStakedAmountForAddress] = useState(0);
   const [poolIdForAddress, setPoolIdForAddress] = useState(0);
   const [shouldUpdateTimer, setShouldUpdateTimer] = useState(false);
@@ -75,7 +76,7 @@ function App() {
     let timerEnded = false;
 
     const updateTimer = () => {
-      const currentTime = parseInt(Date.now() / 1000);
+      const currentTime = Number.parseInt(Date.now() / 1000);
       const timeLeft = Math.max(0, endTimestamp - currentTime);
       setTimeleft(timeLeft);
 
@@ -83,7 +84,7 @@ function App() {
       if (timeLeft <= 0 && !timerEnded) {
         console.log("Phase Interval was just reset.");
         timerEnded = true;
-        clearInterval(intervalRef.current); // Clear the interval to stop the timer
+        clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
@@ -120,12 +121,12 @@ function App() {
     const poolMaster = new ethers.Contract(
       PoolMasterAddress.address,
       PoolMasterAbi.abi,
-      signer
+      signer,
     );
     const token = new ethers.Contract(
       TokenAddress.address,
       TokenAbi.abi,
-      signer
+      signer,
     );
     const usdc = new ethers.Contract(UsdcAddress.address, UsdcAbi.abi, signer);
 
@@ -145,21 +146,21 @@ function App() {
     const readProvider = new ethers.providers.JsonRpcProvider(RPC_URL);
     const multicallProvider = new MulticallProvider(
       readProvider,
-      Number(CHAIN_ID)
+      Number(CHAIN_ID),
     );
     await multicallProvider.init();
 
     const poolMasterMulticall = new MulticallContract(
       PoolMasterAddress.address,
-      PoolMasterAbi.abi
+      PoolMasterAbi.abi,
     );
     const tokenMulticall = new MulticallContract(
       TokenAddress.address,
-      TokenAbi.abi
+      TokenAbi.abi,
     );
     const usdcMulticall = new MulticallContract(
       UsdcAddress.address,
-      UsdcAbi.abi
+      UsdcAbi.abi,
     );
 
     setContracts((prev) => ({
@@ -205,10 +206,10 @@ function App() {
       console.log(
         account,
         contracts.multicallProvider,
-        contracts.poolMasterMulticall
+        contracts.poolMasterMulticall,
       );
       console.log(
-        "Account specific data cannot be fetched without all required dependencies."
+        "Account specific data cannot be fetched without all required dependencies.",
       );
       return;
     }
@@ -221,7 +222,7 @@ function App() {
     try {
       const results = await contracts.multicallProvider.all(poolMasterCalls);
       setStakedAmountForAddress(fromWei(results[0]));
-      setPoolIdForAddress(parseInt(results[1], 10));
+      setPoolIdForAddress(Number.parseInt(results[1], 10));
     } catch (error) {
       console.error("Error fetching account-specific data:", error);
     }
@@ -242,7 +243,7 @@ function App() {
 
   const fetchPhase = useCallback(async () => {
     try {
-      const response = await Axios.get(API_ENDPOINT);
+      const response = await Axios.get(`${API_ENDPOINT}phase`);
       const { phase, endTimestamp } = response.data;
 
       if (currentPhase !== Number(phase)) {
@@ -255,6 +256,16 @@ function App() {
       console.error("Error fetching phase:", error);
     }
   }, [currentPhase]);
+
+  const fetchCurrentPerformance = useCallback(async () => {
+    try {
+      const response = await Axios.get(`${API_ENDPOINT}token_performance`);
+      const { token1, token2 } = response.data;
+      setCurrentPerformance(response.data);
+    } catch (error) {
+      console.error("Error fetching current performance:", error);
+    }
+  }, []);
 
   useEffect(() => {
     if (!shouldUpdateTimer) return;
@@ -273,8 +284,10 @@ function App() {
 
   useEffect(() => {
     if (setupDone) {
+      fetchCurrentPerformance();
       fetchPhase();
       const phaseInterval = setInterval(fetchPhase, 15000);
+      const performanceInterval = setInterval(fetchCurrentPerformance, 60000);
 
       return () => clearInterval(phaseInterval);
     }
@@ -300,7 +313,7 @@ function App() {
 
       const accountSpecificDataInterval = setInterval(
         fetchAccountSpecificData,
-        15000
+        15000,
       );
       return () => clearInterval(accountSpecificDataInterval);
     }
@@ -350,6 +363,7 @@ function App() {
                     pools={pools}
                     stakedAmountForAddress={stakedAmountForAddress}
                     poolIdForAddress={poolIdForAddress}
+                    currentPerformance={currentPerformance}
                   />
                 </>
               }

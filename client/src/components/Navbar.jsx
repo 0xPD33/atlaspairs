@@ -15,7 +15,7 @@ const Navbar = ({
 }) => {
   const showMouseLight = useLocalSettingsStore((state) => state.showMouseLight);
   const setShowMouseLight = useLocalSettingsStore(
-    (state) => state.setShowMouseLight
+    (state) => state.setShowMouseLight,
   );
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -83,16 +83,16 @@ const Navbar = ({
               <Icon width={24} icon="bi:github" />
             </a>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
-              <Link className="navbar-link-item" to="/">
-                Vaults
-              </Link>
-              <Link className="navbar-link-item" to="/leaderboard">
-                Leaderboard
-              </Link>
-            </div>
-          </div>
+          {/*}<div className="flex items-center gap-4">
+						<div className="flex items-center gap-4">
+							<Link className="navbar-link-item" to="/">
+								Vaults
+							</Link>
+							<Link className="navbar-link-item" to="/leaderboard">
+								Leaderboard
+							</Link>
+						</div>
+					</div>*/}
           <div>
             {account ? (
               <button className="main-button" onClick={handleToggleDropdown}>
@@ -143,14 +143,14 @@ const Navbar = ({
               <Icon width={24} icon="bi:github" />
             </a>
           </div>
-          <div className="flex items-center gap-4">
-            <Link className="navbar-link-item" to="/">
-              Vaults
-            </Link>
-            <Link className="navbar-link-item" to="/leaderboard">
-              Leaderboard
-            </Link>
-          </div>
+          {/* <div className="flex items-center gap-4">
+						<Link className="navbar-link-item" to="/">
+							Vaults
+						</Link>
+						<Link className="navbar-link-item" to="/leaderboard">
+							Leaderboard
+						</Link>
+					</div> */}
         </div>
         <div className="relative flex-1 flex items-center justify-center">
           <Link to="/">
