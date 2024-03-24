@@ -8,12 +8,6 @@ const { poolMaster, provider } = require("../global");
 
 const router = express.Router();
 
-const PoolMasterAbi = JSON.parse(
-  fs.readFileSync("contractsData/PoolMaster.json")
-);
-const PoolMasterAddress = JSON.parse(
-  fs.readFileSync("contractsData/PoolMaster-address.json")
-);
 const tokenList = JSON.parse(fs.readFileSync("tokens.json"));
 
 dotenv.config();
@@ -54,17 +48,17 @@ router.post("/", async (req, res) => {
     if (phase === 2 && !epochEnded) {
       console.log("Finding out winner...");
       const fetchedToken1 = await getTokenBySymbol(
-        await poolMaster.getSymbol(0)
+        await poolMaster.getSymbol(0),
       );
       const fetchedToken2 = await getTokenBySymbol(
-        await poolMaster.getSymbol(1)
+        await poolMaster.getSymbol(1),
       );
 
       console.log(
         "fetchedToken1",
         fetchedToken1,
         "fetchedToken2",
-        fetchedToken2
+        fetchedToken2,
       );
 
       console.log("Getting initial prices...");
@@ -119,7 +113,7 @@ router.post("/", async (req, res) => {
 
       if (nextToken1Symbol === nextToken2Symbol) {
         console.log("Tokens are the same, retrying...");
-		res.status(500).json({ error: "Tokens are the same, retrying..." });
+        res.status(500).json({ error: "Tokens are the same, retrying..." });
         isEpochOperationInProgress = false;
         release();
         return;
@@ -137,7 +131,7 @@ router.post("/", async (req, res) => {
           nextToken1Symbol,
           String(token1.price),
           nextToken2Symbol,
-          String(token2.price)
+          String(token2.price),
         );
         console.log("Epoch started");
       } catch (error) {
@@ -168,64 +162,33 @@ router.post("/", async (req, res) => {
   }
 });
 
-const getTokenBySymbol = async (symbol) => {
-  try {
-    const response = await axios.get(
-      "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
-      {
-        params: {
-          symbol: symbol,
-          convert: "USD",
-        },
-        headers: {
-          "X-CMC_PRO_API_KEY": process.env.CMC_API_KEY,
-        },
-      }
-    );
-
-    const token = response.data.data[symbol];
-    return {
-      name: token.name,
-      symbol: token.symbol,
-      price: token.quote.USD.price,
-    };
-  } catch (error) {
-    console.log("CMC Api ERROR:");
-    console.error(error);
-    console.log("End CMC Api ERROR");
-  }
-};
-
-const getTop100Tokens = async () => {
-  try {
-    const response = await axios.get(
-      "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
-      {
-        params: {
-          start: 1,
-          limit: 100,
-          convert: "USD",
-        },
-        headers: {
-          "X-CMC_PRO_API_KEY": process.env.CMC_API_KEY,
-        },
-      }
-    );
-
-    const tokens = response.data.data.map((token) => {
-      return {
-        name: token.name,
-        symbol: token.symbol,
-        price: token.quote.USD.price,
-        address: token.platform ? token.platform.token_address : null,
-      };
-    });
-
-    return tokens;
-  } catch (error) {
-    console.error(error);
-  }
-};
+// const getTokenBySymbol = async (symbol) => {
+//   try {
+//     const response = await axios.get(
+//       "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
+//       {
+//         params: {
+//           symbol: symbol,
+//           convert: "USD",
+//         },
+//         headers: {
+//           "X-CMC_PRO_API_KEY": process.env.CMC_API_KEY,
+//         },
+//       },
+//     );
+//
+//     const token = response.data.data[symbol];
+//     return {
+//       name: token.name,
+//       symbol: token.symbol,
+//       price: token.quote.USD.price,
+//     };
+//   } catch (error) {
+//     console.log("CMC Api ERROR:");
+//     console.error(error);
+//     console.log("End CMC Api ERROR");
+//   }
+// };
 
 const getRandom32Int = () => {
   let temp = "0b";

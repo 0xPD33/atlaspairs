@@ -23,7 +23,7 @@ import TokenAddress from "../data/AtlasToken-address.json";
 import PoolMasterAbi from "../data/PoolMaster.json";
 import PoolMasterAddress from "../data/PoolMaster-address.json";
 
-const API_ENDPOINT = "/api/";
+const API_ENDPOINT = "/api";
 Axios.defaults.baseURL = import.meta.env.VITE_SERVER_ENDPOINT;
 
 const RPC_URL = import.meta.env.VITE_RPC_URL;
@@ -243,7 +243,7 @@ function App() {
 
   const fetchPhase = useCallback(async () => {
     try {
-      const response = await Axios.get(`${API_ENDPOINT}phase`);
+      const response = await Axios.get(`${API_ENDPOINT}/phase`);
       const { phase, endTimestamp } = response.data;
 
       if (currentPhase !== Number(phase)) {
@@ -259,7 +259,7 @@ function App() {
 
   const fetchCurrentPerformance = useCallback(async () => {
     try {
-      const response = await Axios.get(`${API_ENDPOINT}token_performance`);
+      const response = await Axios.get(`${API_ENDPOINT}/token_performance`);
       const { token1, token2 } = response.data;
       setCurrentPerformance(response.data);
     } catch (error) {
@@ -286,10 +286,13 @@ function App() {
     if (setupDone) {
       fetchCurrentPerformance();
       fetchPhase();
-      const phaseInterval = setInterval(fetchPhase, 15000);
-      const performanceInterval = setInterval(fetchCurrentPerformance, 60000);
+      const phaseInterval = setInterval(fetchPhase, 20000);
+      const performanceInterval = setInterval(fetchCurrentPerformance, 120000);
 
-      return () => clearInterval(phaseInterval);
+      return () => {
+        clearInterval(phaseInterval);
+        clearInterval(performanceInterval);
+      };
     }
   }, [setupDone]);
 
@@ -297,7 +300,7 @@ function App() {
     if (setupDone && contracts.multicallProvider) {
       fetchContractData();
 
-      const contractDataInterval = setInterval(fetchContractData, 15000);
+      const contractDataInterval = setInterval(fetchContractData, 20000);
       return () => clearInterval(contractDataInterval);
     }
   }, [setupDone, contracts.multicallProvider]);
@@ -313,7 +316,7 @@ function App() {
 
       const accountSpecificDataInterval = setInterval(
         fetchAccountSpecificData,
-        15000,
+        20000,
       );
       return () => clearInterval(accountSpecificDataInterval);
     }
