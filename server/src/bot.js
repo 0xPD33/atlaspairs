@@ -27,25 +27,25 @@ async function checkContractState() {
   }
 }
 
-async function startFetchingEvents() {
-  poolMaster.on(winnerDeterminedSignature, (winner, amount, isUsdc, event) => {
-    eventData.winnerEvents.push({
-      address: winner,
-      amount: amount.toNumber(),
-      isUsdc,
-      timestamp: event.blockNumber,
-    });
-  });
-
-  poolMaster.on(loserDeterminedSignature, (loser, amount, isUsdc, event) => {
-    eventData.loserEvents.push({
-      address: loser,
-      amount: amount.toNumber(),
-      isUsdc,
-      timestamp: event.blockNumber,
-    });
-  });
-}
+// async function startFetchingEvents() {
+//   poolMaster.on(winnerDeterminedSignature, (winner, amount, isUsdc, event) => {
+//     eventData.winnerEvents.push({
+//       address: winner,
+//       amount: amount.toNumber(),
+//       isUsdc,
+//       timestamp: event.blockNumber,
+//     });
+//   });
+//
+//   poolMaster.on(loserDeterminedSignature, (loser, amount, isUsdc, event) => {
+//     eventData.loserEvents.push({
+//       address: loser,
+//       amount: amount.toNumber(),
+//       isUsdc,
+//       timestamp: event.blockNumber,
+//     });
+//   });
+// }
 
 async function startBot() {
   checkContractState();
