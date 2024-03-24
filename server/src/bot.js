@@ -49,7 +49,7 @@ async function startFetchingEvents() {
 
 async function startBot() {
   checkContractState();
-  startFetchingEvents();
+  // startFetchingEvents();
   setInterval(async () => {
     await checkContractState();
   }, COOLDOWN_PERIOD * 1000);

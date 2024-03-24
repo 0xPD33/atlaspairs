@@ -1,8 +1,8 @@
 const axios = require("axios");
 const {
   CMC_API_KEY,
-  multicallProvider,
-  poolMasterMulticall,
+  // poolMasterMulticall,
+  poolMaster,
 } = require("./global");
 
 const getTokenBySymbol = async (symbol) => {
@@ -24,9 +24,9 @@ const getTokenBySymbol = async (symbol) => {
 const getPhaseEndTimestamp = async (phase) => {
   try {
     const calls = Promise.all([
-      poolMasterMulticall.timestampStartEpoch(),
-      poolMasterMulticall.bettingPhaseDuration(),
-      poolMasterMulticall.battlingPhaseDuration(),
+      poolMaster.timestampStartEpoch(),
+      poolMaster.bettingPhaseDuration(),
+      poolMaster.battlingPhaseDuration(),
     ]);
 
     let endTimestamp;
