@@ -2,7 +2,8 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 const { ethers } = require("ethers");
 const fs = require("fs");
-const { provider, poolMaster, setup } = require("./global");
+const { provider, poolMaster } = require("./global");
+const global = require("./global.js");
 const { getPhaseEndTimestamp } = require("./utils");
 
 dotenv.config();
