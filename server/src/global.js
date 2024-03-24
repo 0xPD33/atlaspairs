@@ -38,16 +38,11 @@ const eventData = {
   loserEvents: [],
 };
 
-async function setup() {
-  await multicallProvider.init();
-}
-
 module.exports = {
   provider,
   poolMaster,
   multicallProvider,
   poolMasterMulticall,
   eventData,
-  setup,
   CMC_API_KEY: process.env.CMC_API_KEY,
 };

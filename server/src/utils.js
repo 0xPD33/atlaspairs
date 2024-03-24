@@ -23,27 +23,20 @@ const getTokenBySymbol = async (symbol) => {
 
 const getPhaseEndTimestamp = async (phase) => {
   try {
-    const calls = [
+    const calls = Promise.all([
       poolMasterMulticall.timestampStartEpoch(),
       poolMasterMulticall.bettingPhaseDuration(),
       poolMasterMulticall.battlingPhaseDuration(),
-    ];
-
-    // Execute multicall
-    const [timestampStartEpoch, bettingPhaseDuration, battlingPhaseDuration] =
-      await multicallProvider.all(calls);
+    ]);
 
     let endTimestamp;
 
     if (phase === 0) {
       // Betting phase ends after its own duration
-      endTimestamp = Number(timestampStartEpoch) + Number(bettingPhaseDuration);
+      endTimestamp = Number(calls[0]) + Number(calls[1]);
     } else if (phase === 1) {
       // Battling phase ends after the sum of the durations of both phases
-      endTimestamp =
-        Number(timestampStartEpoch) +
-        Number(bettingPhaseDuration) +
-        Number(battlingPhaseDuration);
+      endTimestamp = Number(calls[0]) + Number(calls[1]) + Number(calls[2]);
     } else {
       endTimestamp = 0;
     }

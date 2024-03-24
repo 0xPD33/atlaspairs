@@ -8,7 +8,6 @@ const { startBot } = require("./bot.js");
 const global = require("./global.js");
 
 dotenv.config();
-global.setup();
 
 const SERVER_IP = process.env.SERVER_IP;
 const limiter = rateLimit({
