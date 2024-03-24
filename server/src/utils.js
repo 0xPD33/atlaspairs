@@ -1,9 +1,5 @@
 const axios = require("axios");
-const {
-  CMC_API_KEY,
-  // poolMasterMulticall,
-  poolMaster,
-} = require("./global");
+const { CMC_API_KEY, poolMasterMulticall } = require("./global");
 
 const getTokenBySymbol = async (symbol) => {
   const url =
@@ -23,20 +19,26 @@ const getTokenBySymbol = async (symbol) => {
 
 const getPhaseEndTimestamp = async (phase) => {
   try {
-    const calls = Promise.all([
-      poolMaster.timestampStartEpoch(),
-      poolMaster.bettingPhaseDuration(),
-      poolMaster.battlingPhaseDuration(),
-    ]);
+    const calls = [
+      poolMasterMulticall.timestampStartEpoch(),
+      poolMasterMulticall.bettingPhaseDuration(),
+      poolMasterMulticall.battlingPhaseDuration(),
+    ];
+
+    const [timestampStartEpoch, bettingPhaseDuration, battlingPhaseDuration] =
+      await multicallProvider.all(calls);
 
     let endTimestamp;
 
     if (phase === 0) {
       // Betting phase ends after its own duration
-      endTimestamp = Number(calls[0]) + Number(calls[1]);
+      endTimestamp = Number(timestampStartEpoch) + Number(bettingPhaseDuration);
     } else if (phase === 1) {
       // Battling phase ends after the sum of the durations of both phases
-      endTimestamp = Number(calls[0]) + Number(calls[1]) + Number(calls[2]);
+      endTimestamp =
+        Number(timestampStartEpoch) +
+        Number(bettingPhaseDuration) +
+        Number(battlingPhaseDuration);
     } else {
       endTimestamp = 0;
     }

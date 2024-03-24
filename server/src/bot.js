@@ -6,6 +6,7 @@ const { provider, poolMaster } = require("./global");
 const { getPhaseEndTimestamp } = require("./utils");
 
 dotenv.config();
+global.setup();
 
 let phase = 0;
 let endTimestamp = 0;
