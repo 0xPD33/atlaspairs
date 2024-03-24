@@ -1,5 +1,9 @@
 const axios = require("axios");
-const { CMC_API_KEY, poolMasterMulticall } = require("./global");
+const {
+  CMC_API_KEY,
+  poolMasterMulticall,
+  multicallProvider,
+} = require("./global");
 
 const getTokenBySymbol = async (symbol) => {
   const url =
